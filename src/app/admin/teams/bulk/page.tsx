@@ -1,7 +1,6 @@
 "use client"
 
 import { AdminLayout } from "@/components/admin-layout"
-import { BulkTeamUpload } from "@/components/bulk-team-upload"
 import { useRouter } from "next/navigation"
 
 export default function BulkTeamUploadPage() {
@@ -26,7 +25,6 @@ export default function BulkTeamUploadPage() {
           <p className="text-muted-foreground">Upload multiple teams at once using CSV format</p>
         </div>
 
-        <BulkTeamUpload onSubmit={handleSubmit} onCancel={handleCancel} />
       </div>
     </AdminLayout>
   )

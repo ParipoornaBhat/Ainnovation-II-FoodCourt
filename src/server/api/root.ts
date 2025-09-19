@@ -1,9 +1,5 @@
-import { functionRouter } from "@/server/api/routers/function";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import {questionRouter} from "@/server/api/routers/question";
-import { submissionRouter } from "@/server/api/routers/submission";
-import { leaderboardRouter } from "./routers/leaderboard";
-import { functionR1Router } from "./routers/R1";
+
 
 
 /**
@@ -11,12 +7,23 @@ import { functionR1Router } from "./routers/R1";
  *
  * All routers added in /api/routers should be manually added here.
  */
+
+import { z } from "zod";
+
+import { publicProcedure } from "@/server/api/trpc";
+
+// Dummy API router
+const dummyRouter = createTRPCRouter({
+  hello: publicProcedure
+    .input(z.object({ name: z.string().optional() }))
+    .query(({ input }) => {
+      return { message: `Hello, ${input.name ?? "world"}!` };
+    }),
+});
+
 export const appRouter = createTRPCRouter({
-  f: functionRouter,
-  question: questionRouter,
-  submission: submissionRouter,
-  leaderboard: leaderboardRouter,
-  r1: functionR1Router,
+ 
+  dummy: dummyRouter,
 });
 
 // export type definition of API
