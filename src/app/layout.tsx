@@ -2,7 +2,6 @@
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { Inter, Roboto_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Suspense } from "react"
 import "@/styles/globals.css"
@@ -62,7 +61,7 @@ export default function RootLayout({
           />
           <FlashToast />
         </Suspense>
-        <Analytics />
+     
       </body>
     </html>
   )

@@ -1,7 +1,7 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import {toast} from "sonner"
@@ -55,7 +55,8 @@ export default function AdminLoginPage() {
         "max-age=10",
         "path=/",
       ].join("; ");
-      router.push("/admin");
+      window.location.href = "/admin"; 
+      console.log("Login successful, redirecting to /admin");
     } else {
       toast.error("An unexpected error occurred. Please try again.");
     }
