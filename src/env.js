@@ -22,6 +22,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+      LOGIN_REQUIRED: z.coerce.boolean().default(true),
   },
 
   /**
@@ -46,6 +47,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || SOCKET_URL,
     NODE_ENV: process.env.NODE_ENV,
     SOCKET_URL: process.env.SOCKET_URL || SOCKET_URL,
+    LOGIN_REQUIRED: process.env.LOGIN_REQUIRED,
   },
 
   /**

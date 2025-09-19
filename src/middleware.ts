@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { env } from "./env";
+import { env } from "@/env";
 
 // Utility to set a flash message in a cookie
 const setFlashError = (res: NextResponse, message: string) => {
@@ -12,11 +12,19 @@ const setFlashError = (res: NextResponse, message: string) => {
   });
 };
 
+// Read environment variable to toggle auth
+const LOGIN_REQUIRED = env.LOGIN_REQUIRED;
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Always allow root
   if (pathname === "/") return NextResponse.next();
+
+  if (!LOGIN_REQUIRED) {
+    // If login not required, allow all routes
+    return NextResponse.next();
+  }
 
   // Get user token
   const token = await getToken({
