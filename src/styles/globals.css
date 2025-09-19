@@ -1,0 +1,307 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 180 100% 34%; /* Teal 500 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 180 100% 34%; /* Teal 500 */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 180 100% 34%; /* Teal 500 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 240 4.8% 95.9%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 180 100% 34%; /* Teal 500 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(180, 100%, 97%) 0%,
+      hsl(270, 100%, 97%) 25%,
+      hsl(25, 100%, 97%) 50%,
+      hsl(330, 100%, 97%) 75%,
+      hsl(180, 100%, 97%) 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  .gradient-bg-dark {
+    background: linear-gradient(
+      135deg,
+      hsl(180, 100%, 10%) 0%,
+      hsl(270, 70%, 10%) 25%,
+      hsl(25, 75%, 22%) 50%,
+      hsl(330, 70%, 10%) 75%,
+      hsl(180, 100%, 10%) 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  .loading-dots {
+    display: inline-block;
+  }
+
+  .loading-dots::after {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: currentColor;
+    margin-left: 2px;
+    animation: loading-dots 1.4s ease-in-out infinite both;
+  }
+
+  .loading-dots::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: currentColor;
+    margin-right: 2px;
+    animation: loading-dots 1.4s ease-in-out infinite both;
+    animation-delay: -0.16s;
+  }
+}
+/* Mobile default (applies to all unless overridden) */
+.text-stroke-1 {
+  -webkit-text-stroke: 1px black;
+}
+
+.text-stroke-sm {
+  -webkit-text-stroke: 0.2px black;
+}
+
+/* Desktop overrides */
+@media (min-width: 1024px) {
+  .lg-text-stroke-2 {
+    -webkit-text-stroke: 2px black;
+  }
+
+  .lg-text-stroke-sm {
+    -webkit-text-stroke: 0.2px black;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* React Flow Custom Styles */
+.react-flow__node {
+  font-family: inherit;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+  stroke: #8b5cf6;
+  transition: all 0.2s ease;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+.react-flow__edge-path:hover {
+  stroke-width: 4;
+  stroke: #7c3aed;
+}
+
+/* Eraser mode styles */
+.react-flow__edge-path.eraser-mode {
+  stroke: #ef4444 !important;
+  stroke-width: 3 !important;
+  cursor: crosshair !important;
+}
+
+.react-flow__edge-path.eraser-mode:hover {
+  stroke: #dc2626 !important;
+  stroke-width: 4 !important;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* Eraser mode cursor */
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+.cursor-crosshair * {
+  cursor: crosshair !important;
+}
+
+/* MiniMap Styling */
+.react-flow__minimap {
+  background: white !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .react-flow__minimap {
+  background: #374151 !important;
+  border: 2px solid #4b5563 !important;
+}
+
+/* MiniMap Nodes */
+.react-flow__minimap-node {
+  fill: #8b5cf6 !important;
+  stroke: none !important;
+  opacity: 0.8 !important;
+}
+
+/* MiniMap Viewport Rectangle - The dotted box showing current visible area */
+.react-flow__minimap-mask {
+  fill: rgba(139, 92, 246, 0.1) !important;
+  stroke: #8b5cf6 !important;
+  stroke-width: 2 !important;
+  stroke-dasharray: 4, 4 !important;
+  cursor: grab !important;
+}
+
+.react-flow__minimap-mask:active {
+  cursor: grabbing !important;
+}
+
+.dark .react-flow__minimap-mask {
+  fill: rgba(167, 139, 250, 0.1) !important;
+  stroke: #a78bfa !important;
+}
+
+/* MiniMap Background */
+.react-flow__minimap svg {
+  border-radius: 6px;
+}
+
+/* Ensure minimap is always on top and positioned correctly */
+.react-flow__minimap {
+  z-index: 1000 !important;
+}
+.react-flow__node-input,
+.react-flow__node-output,
+.react-flow__node-function {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  width: auto !important;
+  height: auto !important;
+}
