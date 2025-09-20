@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Moon, Sun, Menu, X, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 export function Navigation() {
   const { theme, setTheme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
+  const { data: session } = useSession()
+  const role = session?.user.role
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">

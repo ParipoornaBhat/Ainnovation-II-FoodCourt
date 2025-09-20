@@ -36,6 +36,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${robotoMono.variable}`}
     >
+       <head>
+        <title>Hackathon FoodCourt</title>
+        <link rel="icon" href="/N.png" type="image/png" />
+        {/* You can also add meta tags here if needed */}
+      </head>
       <body className="font-sans antialiased">
         <Suspense fallback={null}>
           <ThemeProvider
@@ -43,7 +48,7 @@ export default function RootLayout({
             defaultTheme="light"
             enableSystem
             disableTransitionOnChange
-          >
+          >   <FlashToast />
             {children}
           </ThemeProvider>
             <Toaster
@@ -59,7 +64,7 @@ export default function RootLayout({
               },
             }}
           />
-          <FlashToast />
+        
         </Suspense>
      
       </body>
