@@ -27,6 +27,13 @@ export default function EventFoodManagement() {
 	const router = useRouter();
 	const eventId = params.id as string;
 	const [searchQuery, setSearchQuery] = useState("");
+
+	const [addFoodMutationIsLoading, setAddFoodMutationIsLoading] =
+		useState(false);
+	const [removeFoodIsLoading, setRemoveFoodIsLoading] = useState(false);
+	const [updateInventoryIsLoading, setUpdateInventoryIsLoading] =
+		useState(false);
+
 	const [allocatingItems, setAllocatingItems] = useState<
 		Record<string, number | undefined>
 	>({});
@@ -50,6 +57,7 @@ export default function EventFoodManagement() {
 		onSuccess: () => {
 			refetchAllocated();
 			refetchAvailable();
+			setAddFoodMutationIsLoading(false);
 			toast.success("Food item allocated to event successfully");
 		},
 		onError: (error) => {
@@ -61,6 +69,7 @@ export default function EventFoodManagement() {
 		onSuccess: () => {
 			refetchAllocated();
 			refetchAvailable();
+			setRemoveFoodIsLoading(false);
 			toast.success("Food item removed from event");
 		},
 		onError: (error) => {
@@ -71,6 +80,8 @@ export default function EventFoodManagement() {
 	const updateInventoryMutation = api.events.updateInventoryItem.useMutation({
 		onSuccess: () => {
 			refetchAllocated();
+			refetchAvailable();
+			setUpdateInventoryIsLoading(false);
 			toast.success("Max order limit updated");
 		},
 		onError: (error) => {
@@ -97,7 +108,7 @@ export default function EventFoodManagement() {
 			toast.error("Max order per team cannot be 0. Leave empty for no limit.");
 			return;
 		}
-
+		setAddFoodMutationIsLoading(true);
 		addFoodMutation.mutate({
 			foodId,
 			eventId,
@@ -111,6 +122,7 @@ export default function EventFoodManagement() {
 	};
 
 	const handleRemoveConfirm = () => {
+		setRemoveFoodIsLoading(true);
 		removeFoodMutation.mutate({
 			inventoryItemId: confirmRemove.inventoryItemId,
 		});
@@ -125,6 +137,8 @@ export default function EventFoodManagement() {
 			toast.error("Max order per team cannot be 0. Leave empty for no limit.");
 			return;
 		}
+
+		setUpdateInventoryIsLoading(true);
 
 		updateInventoryMutation.mutate({
 			inventoryItemId,
@@ -336,7 +350,7 @@ export default function EventFoodManagement() {
 																	);
 																}
 															}}
-															disabled={updateInventoryMutation.isLoading}
+															disabled={updateInventoryIsLoading}
 														>
 															<Check className="h-4 w-4 text-green-600" />
 														</Button>
@@ -364,7 +378,7 @@ export default function EventFoodManagement() {
 																setEditingMaxOrder((prev) => ({
 																	...prev,
 																	[inventoryItem.id]:
-																		inventoryItem.maxOrderPerTeam,
+																		inventoryItem.maxOrderPerTeam ?? undefined,
 																}))
 															}
 															readOnly
@@ -376,7 +390,7 @@ export default function EventFoodManagement() {
 																setEditingMaxOrder((prev) => ({
 																	...prev,
 																	[inventoryItem.id]:
-																		inventoryItem.maxOrderPerTeam,
+																		inventoryItem.maxOrderPerTeam ?? undefined,
 																}))
 															}
 														>
@@ -418,12 +432,10 @@ export default function EventFoodManagement() {
 															inventoryItem.foodItem.name,
 														)
 													}
-													disabled={removeFoodMutation.isLoading}
+													disabled={removeFoodIsLoading}
 												>
 													<X className="h-3 w-3 mr-1" />
-													{removeFoodMutation.isLoading
-														? "Removing..."
-														: "Remove"}
+													{removeFoodIsLoading ? "Removing..." : "Remove"}
 												</Button>
 											</div>
 										</CardContent>
@@ -547,10 +559,10 @@ export default function EventFoodManagement() {
 												onClick={() =>
 													handleAddFood(item.id, allocatingItems[item.id])
 												}
-												disabled={addFoodMutation.isLoading}
+												disabled={addFoodMutationIsLoading}
 											>
 												<Plus className="h-3 w-3" />
-												{addFoodMutation.isLoading
+												{addFoodMutationIsLoading
 													? "Adding..."
 													: "Add to Event"}
 											</Button>
