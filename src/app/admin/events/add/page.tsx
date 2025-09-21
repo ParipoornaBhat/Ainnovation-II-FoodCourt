@@ -1,16 +1,29 @@
 "use client"
 import { AdminLayout } from "@/components/admin-layout"
 import { EventForm } from "@/components/event-form"
+import { api } from "@/trpc/react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export default function AddEventPage() {
   const router = useRouter()
+  const { mutate: eventsMutation } = api.events.create.useMutation();
 
   const handleSubmit = (data: any) => {
-    // Handle form submission
-    console.log("Creating event:", data)
-    // In a real app, this would make an API call
-    router.push("/admin/events")
+    eventsMutation({
+      eventName: data.name,
+      description: data.description,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+    }, {
+      onSuccess: () => {
+        toast.success("Event created successfully")
+        router.push("/admin/events")
+      },
+      onError: (error) => {
+        toast.error(`Failed to create event: ${error.message}`)
+      }
+    });
   }
 
   const handleCancel = () => {

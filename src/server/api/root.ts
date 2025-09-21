@@ -11,6 +11,8 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { z } from "zod";
 
 import { publicProcedure } from "@/server/api/trpc";
+import { eventRouter } from "./routers/events";
+import { foodRouter } from "./routers/food";
 
 // Dummy API router
 const dummyRouter = createTRPCRouter({
@@ -22,7 +24,8 @@ const dummyRouter = createTRPCRouter({
 });
 
 export const appRouter = createTRPCRouter({
- 
+  events: eventRouter,
+  food: foodRouter,
   dummy: dummyRouter,
 });
 
