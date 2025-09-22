@@ -38,6 +38,11 @@ const sidebarItems = [
 		href: "/admin/orders",
 		icon: ClipboardList,
 	},
+	{
+		title: "Quick Link Management",
+		href: "/admin/quicklink",
+		icon: require("lucide-react").Paperclip,
+	},
 ];
 
 interface AdminSidebarProps {

@@ -13,8 +13,7 @@ import { eventRouter } from "./routers/events";
 import { foodRouter } from "./routers/food";
 import { teamsRouter } from "./routers/teams";
 import { ordersRouter } from "./routers/orders";
-import { teamCredentialsRouter } from "./routers/teamCredentials";
-
+import { quickLinkRouter } from "./routers/quicklink";
 // Dummy API router
 const dummyRouter = createTRPCRouter({
 	hello: publicProcedure
@@ -31,6 +30,7 @@ export const appRouter = createTRPCRouter({
 	orders: ordersRouter,
 	teamCredentials: teamCredentialsRouter,
 	dummy: dummyRouter,
+	quickLink: quickLinkRouter,
 });
 
 // export type definition of API
