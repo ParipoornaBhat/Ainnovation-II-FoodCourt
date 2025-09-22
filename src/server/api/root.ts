@@ -1,7 +1,5 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
-
-
 /**
  * This is the primary router for your server.
  *
@@ -13,20 +11,22 @@ import { z } from "zod";
 import { publicProcedure } from "@/server/api/trpc";
 import { eventRouter } from "./routers/events";
 import { foodRouter } from "./routers/food";
+import { teamsRouter } from "./routers/teams";
 
 // Dummy API router
 const dummyRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ name: z.string().optional() }))
-    .query(({ input }) => {
-      return { message: `Hello, ${input.name ?? "world"}!` };
-    }),
+	hello: publicProcedure
+		.input(z.object({ name: z.string().optional() }))
+		.query(({ input }) => {
+			return { message: `Hello, ${input.name ?? "world"}!` };
+		}),
 });
 
 export const appRouter = createTRPCRouter({
-  events: eventRouter,
-  food: foodRouter,
-  dummy: dummyRouter,
+	events: eventRouter,
+	food: foodRouter,
+	teams: teamsRouter,
+	dummy: dummyRouter,
 });
 
 // export type definition of API

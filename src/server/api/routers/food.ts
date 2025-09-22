@@ -5,7 +5,11 @@ import { z } from "zod";
 
 export const foodRouter = createTRPCRouter({
 	getAllFoodItems: publicProcedure.query(async ({ ctx }) => {
-		return await ctx.db.foodItem.findMany();
+		return await ctx.db.foodItem.findMany({
+			orderBy: {
+				availableQty: "asc",
+			},
+		});
 	}),
 
 	getFoodItemById: publicProcedure

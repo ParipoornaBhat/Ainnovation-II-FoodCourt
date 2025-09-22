@@ -1,134 +1,200 @@
-import { AdminLayout } from "@/components/admin-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Users, Utensils, ClipboardList, TrendingUp, AlertCircle } from "lucide-react"
+"use client";
+
+import { AdminLayout } from "@/components/admin-layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+	Calendar,
+	Users,
+	Utensils,
+	ClipboardList,
+	RefreshCw,
+	ShoppingCart,
+} from "lucide-react";
+import { useAppData } from "@/contexts/DataContext";
+import { useMemo } from "react";
+import { startOfDay, endOfDay } from "date-fns";
+import Link from "next/link";
 
 export default function AdminDashboard() {
-  return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your food ordering system</p>
-        </div>
+	const { events, teams, foodItems, refreshAll } = useAppData();
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Events</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">+1 from last month</p>
-            </CardContent>
-          </Card>
+	const dashboardStats = useMemo(() => {
+		const now = new Date();
 
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Teams</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">+3 new teams</p>
-            </CardContent>
-          </Card>
+		const activeEvents = events.filter(
+			(event) =>
+				new Date(event.startDate) <= now && new Date(event.endDate) >= now,
+		);
 
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Food Items</CardTitle>
-              <Utensils className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">156</div>
-              <p className="text-xs text-muted-foreground">12 low stock</p>
-            </CardContent>
-          </Card>
+		const upcomingEvents = events.filter((event) => {
+			const startDate = new Date(event.startDate);
+			const sevenDaysFromNow = new Date(
+				now.getTime() + 7 * 24 * 60 * 60 * 1000,
+			);
+			return startDate > now && startDate <= sevenDaysFromNow;
+		});
 
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Orders</CardTitle>
-              <ClipboardList className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">89</div>
-              <p className="text-xs text-muted-foreground">+12% from yesterday</p>
-            </CardContent>
-          </Card>
-        </div>
+		const activeTeams = teams.length <= 0 ? 0 : teams.length;
 
-        {/* Recent Activity & Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>Latest system activities</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">New team registered</p>
-                  <p className="text-sm text-muted-foreground">Development Team Alpha</p>
-                </div>
-                <Badge variant="secondary">2 min ago</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Order completed</p>
-                  <p className="text-sm text-muted-foreground">Marketing Team - Lunch order</p>
-                </div>
-                <Badge variant="secondary">5 min ago</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Food item added</p>
-                  <p className="text-sm text-muted-foreground">Vegetarian Pasta</p>
-                </div>
-                <Badge variant="secondary">15 min ago</Badge>
-              </div>
-            </CardContent>
-          </Card>
+		const todayStart = startOfDay(now);
+		const todayEnd = endOfDay(now);
+		const todaysOrders = teams.reduce((total, team) => {
+			return (
+				total +
+				team.orders.filter((order) => {
+					const orderDate = new Date(order.placedAt);
+					return orderDate >= todayStart && orderDate <= todayEnd;
+				}).length
+			);
+		}, 0);
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
-                System Alerts
-              </CardTitle>
-              <CardDescription>Important notifications</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="font-medium">Low Stock Alert</p>
-                  <p className="text-sm text-muted-foreground">Chicken Sandwich - Only 5 items remaining</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="font-medium">Event Ending Soon</p>
-                  <p className="text-sm text-muted-foreground">Weekly Lunch Event ends in 2 hours</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="font-medium">New Feature Available</p>
-                  <p className="text-sm text-muted-foreground">Bulk team import is now available</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </AdminLayout>
-  )
+		const totalRevenue = teams.reduce((total, team) => {
+			return (
+				total +
+				team.orders.reduce(
+					(teamTotal, order) => teamTotal + order.totalAmount,
+					0,
+				)
+			);
+		}, 0);
+
+		const lowStockItems = foodItems.filter(
+			(item) => item.availableQty !== null && item.availableQty < 10,
+		);
+
+		const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+		const recentOrders = teams
+			.flatMap((team) =>
+				team.orders
+					.filter((order) => new Date(order.placedAt) > twentyFourHoursAgo)
+					.map((order) => ({ ...order, teamName: team.name })),
+			)
+			.sort(
+				(a, b) =>
+					new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime(),
+			);
+
+		return {
+			activeEvents: activeEvents.length,
+			upcomingEvents: upcomingEvents.length,
+			totalEvents: events.length,
+			activeTeams: activeTeams,
+			totalTeams: teams.length,
+			totalFoodItems: foodItems.length,
+			lowStockCount: lowStockItems.length,
+			todaysOrders,
+			totalRevenue,
+			recentOrders: recentOrders.slice(0, 5),
+			lowStockItems: lowStockItems.slice(0, 3),
+		};
+	}, [events, teams, foodItems]);
+
+	return (
+		<AdminLayout>
+			<div className="space-y-6">
+				{/* Header */}
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+						<p className="text-muted-foreground">
+							Overview of your food ordering system
+						</p>
+					</div>
+					<Button variant="outline" onClick={refreshAll}>
+						<RefreshCw className="h-4 w-4 mr-2" />
+						Refresh All
+					</Button>
+				</div>
+
+				{/* Stats Cards */}
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+					<Card className="hover:shadow-md transition-shadow duration-200">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">
+								Active Events
+							</CardTitle>
+							<Calendar className="h-4 w-4 text-muted-foreground" />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{dashboardStats.activeEvents}
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card className="hover:shadow-md transition-shadow duration-200">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Total Teams</CardTitle>
+							<Users className="h-4 w-4 text-muted-foreground" />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{dashboardStats.activeTeams}
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card className="hover:shadow-md transition-shadow duration-200">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Food Items</CardTitle>
+							<Utensils className="h-4 w-4 text-muted-foreground" />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{dashboardStats.totalFoodItems}
+							</div>
+						</CardContent>
+					</Card>
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">
+								Total Orders
+							</CardTitle>
+							<ShoppingCart className="h-4 w-4 text-muted-foreground" />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{teams.reduce((total, team) => total + team._count.orders, 0)}
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Quick Actions</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+							<Button variant="outline" asChild>
+								<Link href="/admin/events/add">
+									<Calendar className="h-4 w-4 mr-2" />
+									Create Event
+								</Link>
+							</Button>
+							<Button variant="outline" asChild>
+								<Link href="/admin/teams">
+									<Users className="h-4 w-4 mr-2" />
+									Manage Teams
+								</Link>
+							</Button>
+							<Button variant="outline" asChild>
+								<Link href="/admin/food">
+									<Utensils className="h-4 w-4 mr-2" />
+									Manage Food
+								</Link>
+							</Button>
+							<Button variant="outline" asChild>
+								<Link href="/admin/orders">
+									<ClipboardList className="h-4 w-4 mr-2" />
+									View Orders
+								</Link>
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		</AdminLayout>
+	);
 }

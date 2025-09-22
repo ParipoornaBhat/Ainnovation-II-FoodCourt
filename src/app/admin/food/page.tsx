@@ -17,13 +17,10 @@ import { api } from "@/trpc/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useAppData } from "@/contexts/DataContext";
 
 export default function FoodManagement() {
-	const {
-		data: allFoodItems,
-		isLoading,
-		refetch,
-	} = api.food.getAllFoodItems.useQuery();
+	const { foodItems: allFoodItems, foodItemsLoading: isLoading, refreshFoodItems } = useAppData();
 
 	const [updateIsLoading, setUpdateIsLoading] = useState(false);
 	const [editingStock, setEditingStock] = useState<Record<string, number>>({});
@@ -37,7 +34,8 @@ export default function FoodManagement() {
 		onSuccess: () => {
 			toast.success("Stock updated successfully");
 			setUpdateIsLoading(false);
-			refetch();
+			refreshFoodItems();
+			// refetch();
 		},
 		onError: (error) => {
 			toast.error(`Failed to update stock: ${error.message}`);
@@ -47,7 +45,7 @@ export default function FoodManagement() {
 	const deleteFoodMutation = api.food.deleteFoodItem.useMutation({
 		onSuccess: () => {
 			toast.success("Food item deleted successfully");
-			refetch();
+			// refetch();
 		},
 		onError: (error) => {
 			toast.error(`Failed to delete food item: ${error.message}`);
@@ -166,14 +164,6 @@ export default function FoodManagement() {
 							</div>
 						</CardContent>
 					</Card>
-					<Card>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-sm font-medium">Categories</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">8</div>
-						</CardContent>
-					</Card>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -246,7 +236,11 @@ export default function FoodManagement() {
 															: "default"
 												}
 											>
-												{item.availableQty} available
+												{item.availableQty <= 0
+													? "Out of Stock"
+													: item.availableQty <= 5
+														? `Low (${item.availableQty})`
+														: item.availableQty}
 											</Badge>
 										)}
 									</div>
@@ -254,7 +248,7 @@ export default function FoodManagement() {
 									<div className="flex items-center justify-between">
 										<span className="text-sm font-medium">Price:</span>
 										<span className="font-semibold text-green-600">
-											${item.price}
+											{item.price <= 0 ? "Free" : `${item.price}rs`}
 										</span>
 									</div>
 

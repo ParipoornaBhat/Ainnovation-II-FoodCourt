@@ -348,9 +348,9 @@ export default function OrderManagement() {
 														</DialogDescription>
 													</DialogHeader>
 													<div className="space-y-4">
-														{order.items.map((item, index) => (
+														{order.items.map((item) => (
 															<div
-																key={index}
+																key={item.name}
 																className="flex justify-between items-center p-3 border rounded"
 															>
 																<div>

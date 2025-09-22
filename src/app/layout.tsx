@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { FlashToast } from "@/app/_components/Flash-error";
 import { SessionProvider } from "next-auth/react";
 import { TRPCReactProvider } from "@/trpc/react";
+import { DataProvider } from "@/contexts/DataContext";
 
 // Load Google Fonts
 const inter = Inter({
@@ -46,16 +47,18 @@ export default function RootLayout({
 				<Suspense fallback={null}>
 					<TRPCReactProvider>
 						<SessionProvider>
-							<ThemeProvider
-								attribute="class"
-								defaultTheme="light"
-								enableSystem
-								disableTransitionOnChange
-							>
-								{" "}
-								<FlashToast />
-								{children}
-							</ThemeProvider>
+							<DataProvider>
+								<ThemeProvider
+									attribute="class"
+									defaultTheme="light"
+									enableSystem
+									disableTransitionOnChange
+								>
+									{" "}
+									<FlashToast />
+									{children}
+								</ThemeProvider>
+							</DataProvider>
 						</SessionProvider>
 						<Toaster
 							position="top-right"

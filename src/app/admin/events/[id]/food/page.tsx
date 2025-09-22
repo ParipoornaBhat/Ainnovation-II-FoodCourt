@@ -174,14 +174,6 @@ export default function EventFoodManagement() {
 							Allocate food items for "{event?.name || "Event"}"
 						</p>
 					</div>
-					<Button className="gap-2" asChild>
-						<Link
-							href={`/admin/food/add?returnUrl=${encodeURIComponent(`/admin/events/${eventId}/food`)}`}
-						>
-							<Plus className="h-4 w-4" />
-							Add New Food Item
-						</Link>
-					</Button>
 				</div>
 
 				<Card>
@@ -207,13 +199,10 @@ export default function EventFoodManagement() {
 									0,
 								)}
 							</div>
-							<div className="text-sm text-muted-foreground">
-								Total Available
-							</div>
+							<div className="text-sm text-muted-foreground">Total Items</div>
 						</div>
 						<div className="text-center p-4 bg-muted/50 rounded-lg">
 							<div className="text-2xl font-bold">
-								$
 								{allocatedFoodItems
 									.reduce(
 										(sum, item) =>
@@ -221,6 +210,7 @@ export default function EventFoodManagement() {
 										0,
 									)
 									.toFixed(2)}
+								rs
 							</div>
 							<div className="text-sm text-muted-foreground">Total Value</div>
 						</div>
@@ -229,7 +219,7 @@ export default function EventFoodManagement() {
 								{availableFoodItems.length}
 							</div>
 							<div className="text-sm text-muted-foreground">
-								Available Items
+								Non Allocated Items
 							</div>
 						</div>
 					</CardContent>
@@ -274,11 +264,6 @@ export default function EventFoodManagement() {
 														</span>
 													</div>
 												)}
-												{inventoryItem.foodItem.restrictions.length > 0 && (
-													<div className="absolute top-2 right-2">
-														<AlertTriangle className="h-5 w-5 text-yellow-500" />
-													</div>
-												)}
 												<div className="absolute top-2 left-2">
 													<Badge variant="default" className="bg-green-500">
 														<Check className="h-3 w-3 mr-1" />
@@ -311,7 +296,9 @@ export default function EventFoodManagement() {
 														Price
 													</Label>
 													<div className="font-semibold text-green-600">
-														${inventoryItem.foodItem.price}
+														{inventoryItem.foodItem.price <= 0
+															? "Free"
+															: `${inventoryItem.foodItem.price}rs`}
 													</div>
 												</div>
 											</div>
@@ -453,9 +440,19 @@ export default function EventFoodManagement() {
 				</Card>
 
 				<Card>
-					<CardHeader>
-						<CardTitle>Available Food Items</CardTitle>
-					</CardHeader>
+					<div className="flex items-center justify-between">
+						<CardHeader>
+							<CardTitle>Available Food Items</CardTitle>
+						</CardHeader>
+						<Button className="mr-4" asChild>
+							<Link
+								href={`/admin/food/add?returnUrl=${encodeURIComponent(`/admin/events/${eventId}/food`)}`}
+							>
+								<Plus className="h-4 w-4" />
+								Add New Food Item
+							</Link>
+						</Button>
+					</div>
 					<CardContent>
 						{filteredAvailableItems.length > 0 ? (
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -507,7 +504,7 @@ export default function EventFoodManagement() {
 														Price
 													</Label>
 													<div className="font-semibold">
-														${item.price <= 0 ? "Free" : item.price}
+														{item.price <= 0 ? "Free" : `${item.price}rs`}
 													</div>
 												</div>
 											</div>

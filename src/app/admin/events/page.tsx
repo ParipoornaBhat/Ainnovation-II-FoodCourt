@@ -27,11 +27,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { api } from "@/trpc/react";
-import { useEffect } from "react";
+import { useAppData } from "@/contexts/DataContext";
 
 export default function EventManagement() {
-	const { data: events, isLoading } = api.events.getAllEvents.useQuery();
+	const { events, eventsLoading: isLoading } = useAppData();
 
 	if (isLoading) {
 		return (

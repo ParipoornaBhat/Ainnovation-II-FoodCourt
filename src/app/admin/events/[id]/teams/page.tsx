@@ -3,7 +3,6 @@
 import { AdminLayout } from "@/components/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
 	Table,
 	TableBody,
@@ -31,74 +30,106 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useState, use } from "react";
+import { AddTeamModal } from "@/components/add-team-modal";
+import { EditTeamModal } from "@/components/edit-team-modal";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
-import { useState } from "react";
+import { useAppData } from "@/contexts/DataContext";
+import { toast } from "sonner";
 
-export default function EventTeamManagement() {
-	const params = useParams();
-	const router = useRouter();
-	const eventId = params.id as string;
+interface PageProps {
+	params: Promise<{
+		id: string;
+	}>;
+}
+
+export default function EventTeamManagement({ params }: PageProps) {
+	const resolvedParams = use(params);
+	const eventId = resolvedParams.id;
 	const [searchQuery, setSearchQuery] = useState("");
 
-	// Mock data - replace with actual tRPC queries
-	const event = {
-		id: eventId,
-		name: "Team Lunch Event",
-		description: "Monthly team lunch gathering",
-		startDate: new Date("2025-09-22T12:00:00"),
-		endDate: new Date("2025-09-22T14:00:00"),
+	const { mutateAsync: addTeamToEventFromAvailable } =
+		api.teams.addTeamToEventFromAvailable.useMutation();
+	// Get data using tRPC and DataContext
+	const { getEventById, refreshTeams } = useAppData();
+	const event = getEventById(eventId);
+
+	const {
+		data: eventTeams,
+		isLoading: teamsLoading,
+		refetch: refetchEventTeams,
+	} = api.teams.getTeamsByEvent.useQuery({ eventId }, { enabled: !!eventId });
+
+	const { data: allTeams } = api.teams.getAll.useQuery();
+
+	const availableTeams =
+		allTeams?.filter(
+			(team) => !eventTeams?.some((eventTeam) => eventTeam.id === team.id),
+		) || [];
+
+	const deleteTeamMutation = api.teams.deleteTeam.useMutation({
+		onSuccess: () => {
+			toast.success("Team removed successfully!");
+			refetchEventTeams();
+			refreshTeams();
+		},
+		onError: (error) => {
+			const errorMessage =
+				error instanceof Error ? error.message : "Unknown error occurred";
+			toast.error(`Failed to remove team: ${errorMessage}`);
+		},
+	});
+
+	const addToEvent = async (teamId: string) => {
+		await addTeamToEventFromAvailable({ teamId, eventId });
+		refetchEventTeams();
+		refreshTeams();
 	};
-
-	const eventTeams = [
-		{
-			id: 1,
-			name: "Development Team Alpha",
-			members: 8,
-			status: "active",
-			joinedAt: "2024-01-10",
-			orders: 12,
-		},
-		{
-			id: 2,
-			name: "Marketing Squad",
-			members: 5,
-			status: "active",
-			joinedAt: "2024-01-12",
-			orders: 8,
-		},
-		{
-			id: 4,
-			name: "QA Engineers",
-			members: 4,
-			status: "active",
-			joinedAt: "2024-01-14",
-			orders: 6,
-		},
-	];
-
-	const availableTeams = [
-		{ id: 3, name: "Design Team", members: 6, status: "available" },
-		{ id: 5, name: "Product Management", members: 3, status: "available" },
-		{ id: 6, name: "DevOps Team", members: 4, status: "available" },
-	];
-
-	const filteredEventTeams = eventTeams.filter((team) =>
-		team.name.toLowerCase().includes(searchQuery.toLowerCase()),
-	);
+	const filteredEventTeams =
+		eventTeams?.filter((team) =>
+			team.name.toLowerCase().includes(searchQuery.toLowerCase()),
+		) || [];
 
 	const filteredAvailableTeams = availableTeams.filter((team) =>
 		team.name.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
+
+	const handleRemoveTeam = async (teamId: string) => {
+		if (confirm("Are you sure you want to remove this team from the event?")) {
+			await deleteTeamMutation.mutateAsync({ id: teamId });
+		}
+	};
+
+	if (teamsLoading) {
+		return (
+			<AdminLayout>
+				<div className="flex items-center justify-center h-64">
+					<p>Loading teams...</p>
+				</div>
+			</AdminLayout>
+		);
+	}
+
+	if (!event) {
+		return (
+			<AdminLayout>
+				<div className="flex items-center justify-center h-64">
+					<p>Event not found</p>
+				</div>
+			</AdminLayout>
+		);
+	}
 
 	return (
 		<AdminLayout>
 			<div className="space-y-6">
 				{/* Header */}
 				<div className="flex items-center gap-4">
-					<Button variant="outline" size="icon" onClick={() => router.back()}>
-						<ArrowLeft className="h-4 w-4" />
+					<Button variant="outline" size="icon" asChild>
+						<Link href={`/admin/events/${eventId}`}>
+							<ArrowLeft className="h-4 w-4" />
+						</Link>
 					</Button>
 					<div className="flex-1">
 						<h1 className="text-3xl font-bold text-foreground">
@@ -109,14 +140,18 @@ export default function EventTeamManagement() {
 						</p>
 					</div>
 					<div className="flex gap-2">
-						<Button variant="outline" className="gap-2">
-							<Upload className="h-4 w-4" />
-							Bulk Add Teams
+						<Button variant="outline" className="gap-2" asChild>
+							<Link href={`/admin/events/${eventId}/teams/bulk-upload`}>
+								<Upload className="h-4 w-4" />
+								Bulk Add Teams
+							</Link>
 						</Button>
-						<Button className="gap-2">
-							<Plus className="h-4 w-4" />
-							Add Team to Event
-						</Button>
+						<AddTeamModal
+							eventId={eventId}
+							onTeamAdded={() => {
+								// Refresh data here
+							}}
+						/>
 					</div>
 				</div>
 
@@ -130,20 +165,28 @@ export default function EventTeamManagement() {
 					</CardHeader>
 					<CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
 						<div className="text-center p-4 bg-muted/50 rounded-lg">
-							<div className="text-2xl font-bold">{eventTeams.length}</div>
+							<div className="text-2xl font-bold">
+								{eventTeams?.length || 0}
+							</div>
 							<div className="text-sm text-muted-foreground">Active Teams</div>
 						</div>
 						<div className="text-center p-4 bg-muted/50 rounded-lg">
 							<div className="text-2xl font-bold">
-								{eventTeams.reduce((sum, team) => sum + team.members, 0)}
+								{eventTeams?.reduce(
+									(sum, team) => sum + team._count.orders,
+									0,
+								) || 0}
 							</div>
-							<div className="text-sm text-muted-foreground">Total Members</div>
+							<div className="text-sm text-muted-foreground">Total Orders</div>
 						</div>
 						<div className="text-center p-4 bg-muted/50 rounded-lg">
 							<div className="text-2xl font-bold">
-								{eventTeams.reduce((sum, team) => sum + team.orders, 0)}
+								{eventTeams?.filter((team) => team._count.orders > 0).length ||
+									0}
 							</div>
-							<div className="text-sm text-muted-foreground">Total Orders</div>
+							<div className="text-sm text-muted-foreground">
+								Teams with Orders
+							</div>
 						</div>
 						<div className="text-center p-4 bg-muted/50 rounded-lg">
 							<div className="text-2xl font-bold">{availableTeams.length}</div>
@@ -178,10 +221,9 @@ export default function EventTeamManagement() {
 										<Checkbox />
 									</TableHead>
 									<TableHead>Team Name</TableHead>
-									<TableHead>Members</TableHead>
+									<TableHead>Username</TableHead>
 									<TableHead>Orders</TableHead>
 									<TableHead>Joined Date</TableHead>
-									<TableHead>Status</TableHead>
 									<TableHead className="text-right">Actions</TableHead>
 								</TableRow>
 							</TableHeader>
@@ -192,11 +234,10 @@ export default function EventTeamManagement() {
 											<Checkbox />
 										</TableCell>
 										<TableCell className="font-medium">{team.name}</TableCell>
-										<TableCell>{team.members}</TableCell>
-										<TableCell>{team.orders}</TableCell>
-										<TableCell>{team.joinedAt}</TableCell>
+										<TableCell>{team.username}</TableCell>
+										<TableCell>{team._count.orders}</TableCell>
 										<TableCell>
-											<Badge variant="default">{team.status}</Badge>
+											{new Date(team.createdAt).toLocaleDateString()}
 										</TableCell>
 										<TableCell className="text-right">
 											<DropdownMenu>
@@ -206,12 +247,31 @@ export default function EventTeamManagement() {
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">
-													<DropdownMenuItem>
-														<Edit className="mr-2 h-4 w-4" />
-														View Details
-													</DropdownMenuItem>
+													<EditTeamModal
+														team={{
+															id: team.id,
+															name: team.name,
+															username: team.username,
+															eventId: team.eventId ?? "",
+														}}
+														onTeamUpdated={() => {
+															refetchEventTeams();
+															refreshTeams();
+														}}
+														trigger={
+															<DropdownMenuItem
+																onSelect={(e) => e.preventDefault()}
+															>
+																<Edit className="mr-2 h-4 w-4" />
+																Edit Team
+															</DropdownMenuItem>
+														}
+													/>
 													<DropdownMenuSeparator />
-													<DropdownMenuItem className="text-red-600">
+													<DropdownMenuItem
+														className="text-red-600"
+														onClick={() => handleRemoveTeam(team.id)}
+													>
 														<Trash2 className="mr-2 h-4 w-4" />
 														Remove from Event
 													</DropdownMenuItem>
@@ -237,8 +297,8 @@ export default function EventTeamManagement() {
 										<Checkbox />
 									</TableHead>
 									<TableHead>Team Name</TableHead>
-									<TableHead>Members</TableHead>
-									<TableHead>Status</TableHead>
+									<TableHead>Username</TableHead>
+									<TableHead>Created Date</TableHead>
 									<TableHead className="text-right">Actions</TableHead>
 								</TableRow>
 							</TableHeader>
@@ -249,12 +309,16 @@ export default function EventTeamManagement() {
 											<Checkbox />
 										</TableCell>
 										<TableCell className="font-medium">{team.name}</TableCell>
-										<TableCell>{team.members}</TableCell>
+										<TableCell>{team.username}</TableCell>
 										<TableCell>
-											<Badge variant="secondary">{team.status}</Badge>
+											{new Date(team.createdAt).toLocaleDateString()}
 										</TableCell>
 										<TableCell className="text-right">
-											<Button variant="outline" size="sm">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => addToEvent(team.id)}
+											>
 												<Plus className="h-3 w-3 mr-1" />
 												Add to Event
 											</Button>

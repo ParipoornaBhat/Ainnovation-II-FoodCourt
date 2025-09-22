@@ -96,15 +96,14 @@ model Event {
 }
 
 model Team {
-  id         String   @id @default(cuid())
-  name       String
-  username   String   @unique
-  password   String // hashed password
-  validUntil DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  name      String
+  username  String   @unique
+  password  String // hashed password
+  createdAt DateTime @default(now())
 
-  event   Event  @relation(fields: [eventId], references: [id])
-  eventId String
+  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId String?
 
   orders Order[]
 }

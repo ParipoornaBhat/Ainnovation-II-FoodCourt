@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
-import { db } from "@/server/db";
 
 export const eventRouter = createTRPCRouter({
 	getAllEvents: publicProcedure.query(async ({ ctx }) => {
@@ -79,7 +78,6 @@ export const eventRouter = createTRPCRouter({
 				name: z.string(),
 				username: z.string(),
 				password: z.string(),
-				validUntil: z.date(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -88,7 +86,6 @@ export const eventRouter = createTRPCRouter({
 					name: input.name,
 					username: input.username,
 					password: input.password, // Should be hashed in production
-					validUntil: input.validUntil,
 					eventId: input.eventId,
 				},
 			});

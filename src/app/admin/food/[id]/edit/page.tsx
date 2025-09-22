@@ -8,10 +8,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import type { AddFoodItemPageProps } from "@/app/admin/food/add/page";
+import { useAppData } from "@/contexts/DataContext";
 
 export default function EditFoodItemPage() {
 	const router = useRouter();
 	const params = useParams();
+	const { refreshFoodItems } = useAppData();
 	const searchParams = useSearchParams();
 	const foodId = params.id as string;
 	const returnUrl = searchParams.get("returnUrl") || "/admin/food";
@@ -35,6 +37,7 @@ export default function EditFoodItemPage() {
 			{
 				onSuccess: () => {
 					toast.success("Food item updated successfully");
+					refreshFoodItems();
 					router.push(returnUrl);
 				},
 				onError: (error) => {

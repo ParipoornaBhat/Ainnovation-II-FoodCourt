@@ -16,6 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "lucide-react";
 
+interface EventFormData {
+	name: string;
+	description?: string;
+	startDate: string;
+	endDate: string;
+}
+
 interface EventFormProps {
 	event?: {
 		id?: number;
@@ -24,7 +31,7 @@ interface EventFormProps {
 		startDate: string;
 		endDate: string;
 	};
-	onSubmit: (data: any) => void;
+	onSubmit: (data: EventFormData) => void;
 	onCancel: () => void;
 }
 
