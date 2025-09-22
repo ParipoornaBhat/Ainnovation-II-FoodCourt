@@ -21,6 +21,7 @@ import {
 	AlertCircle,
 	History,
 	Key,
+	FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useAppData } from "@/contexts/DataContext";
@@ -105,13 +106,26 @@ export default function TeamDashboard() {
 		<TeamLayout>
 			<div className="space-y-6">
 				{/* Header */}
-				<div className="space-y-2">
-					<h1 className="text-3xl font-bold text-foreground">
-						Welcome back, {session.user.teamName}!
-					</h1>
-					<p className="text-muted-foreground">
-						Manage your team orders and track your event participation
-					</p>
+				<div className="flex justify-between items-start">
+					<div className="space-y-2">
+						<h1 className="text-3xl font-bold text-foreground">
+							Welcome back, {session.user.teamName}!
+						</h1>
+						<p className="text-muted-foreground">
+							Manage your team orders and track your event participation
+						</p>
+					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+						asChild
+					>
+						<a href="/Azure-Portal-Access.pdf" download>
+							<FileText className="h-6 w-6" />
+							Instruction Manual
+						</a>
+					</Button>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
