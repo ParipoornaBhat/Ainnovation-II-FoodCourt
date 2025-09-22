@@ -20,15 +20,25 @@ import {
 	ShoppingCart,
 	AlertCircle,
 	History,
-	User,
 } from "lucide-react";
 import Link from "next/link";
-import { api } from "@/trpc/react";
+import { useAppData } from "@/contexts/DataContext";
 
 export default function TeamDashboard() {
 	const { data: session, status } = useSession();
 	const router = useRouter();
 	const [currentTime, setCurrentTime] = useState(new Date());
+
+	// Use DataContext instead of direct API calls
+	const {
+		getEventById,
+		getCurrentTeamOrders,
+		refreshTeamOrders,
+		eventsLoading,
+	} = useAppData();
+
+	const teamId = session?.user?.id;
+	const eventId = session?.user?.eventId;
 
 	// Update time every minute
 	useEffect(() => {
@@ -45,20 +55,19 @@ export default function TeamDashboard() {
 		}
 	}, [status, router]);
 
-	// Get team's event data
-	const { data: teamEvent, isLoading: eventLoading } =
-		api.events.getById.useQuery(
-			{ id: session?.user?.eventId || "" },
-			{ enabled: !!session?.user?.eventId },
-		);
+	// Load team orders when session is available
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <no need>
+		useEffect(() => {
+		if (teamId && session?.user?.role === "TEAM") {
+			refreshTeamOrders(teamId);
+		}
+	}, [teamId, session?.user?.role]);
 
-	// Get team's order history
-	const { data: orderHistory } = api.teams.getTeamOrderHistory.useQuery(
-		{ teamId: session?.user?.id || "" },
-		{ enabled: !!session?.user?.id },
-	);
+	// Get event and order data from context
+	const teamEvent = eventId ? getEventById(eventId) : null;
+	const orderHistory = teamId ? getCurrentTeamOrders(teamId) : [];
 
-	if (status === "loading" || eventLoading) {
+	if (status === "loading" || eventsLoading) {
 		return (
 			<TeamLayout>
 				<div className="flex items-center justify-center h-64">
@@ -90,8 +99,6 @@ export default function TeamDashboard() {
 
 	const recentOrders = orderHistory?.slice(0, 3) || [];
 	const totalOrders = orderHistory?.length || 0;
-	const totalSpent =
-		orderHistory?.reduce((sum, order) => sum + order.totalAmount, 0) || 0;
 
 	return (
 		<TeamLayout>

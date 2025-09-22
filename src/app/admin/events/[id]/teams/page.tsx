@@ -21,6 +21,7 @@ import {
 	ArrowLeft,
 	Search,
 	MoreVertical,
+	Download,
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -37,6 +38,7 @@ import Link from "next/link";
 import { api } from "@/trpc/react";
 import { useAppData } from "@/contexts/DataContext";
 import { toast } from "sonner";
+import { generateEventTeamsPDF } from "@/lib/pdf-generator";
 
 interface PageProps {
 	params: Promise<{
@@ -101,6 +103,34 @@ export default function EventTeamManagement({ params }: PageProps) {
 		}
 	};
 
+	const handleDownloadPDF = async () => {
+		if (!eventTeams || eventTeams.length === 0) {
+			toast.error("No teams found for this event");
+			return;
+		}
+
+		if (!event) {
+			toast.error("Event not found");
+			return;
+		}
+
+		try {
+			toast.loading("Generating PDF...");
+			// Map event teams to ensure they match the Team type expected by the PDF generator
+			const teamsForPdf = eventTeams.map(team => ({
+				...team,
+				eventId: team.eventId || eventId // Ensure eventId is never null
+			}));
+			await generateEventTeamsPDF(teamsForPdf, event.name);
+			toast.dismiss();
+			toast.success("PDF downloaded successfully!");
+		} catch (error) {
+			toast.dismiss();
+			console.error("Error generating PDF:", error);
+			toast.error("Failed to generate PDF");
+		}
+	};
+
 	if (teamsLoading) {
 		return (
 			<AdminLayout>
@@ -140,6 +170,15 @@ export default function EventTeamManagement({ params }: PageProps) {
 						</p>
 					</div>
 					<div className="flex gap-2">
+						<Button
+							variant="outline"
+							className="gap-2"
+							onClick={handleDownloadPDF}
+							disabled={!eventTeams || eventTeams.length === 0}
+						>
+							<Download className="h-4 w-4" />
+							Download PDF
+						</Button>
 						<Button variant="outline" className="gap-2" asChild>
 							<Link href={`/admin/events/${eventId}/teams/bulk-upload`}>
 								<Upload className="h-4 w-4" />

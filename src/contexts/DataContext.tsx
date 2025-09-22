@@ -87,6 +87,31 @@ export interface FoodItem {
 	createdAt: Date;
 }
 
+export interface TeamOrder {
+	id: number;
+	teamId: string;
+	eventId: string;
+	totalAmount: number;
+	orderStatus: string;
+	paymentStatus: string;
+	placedAt: Date;
+	items: Array<{
+		id: string;
+		quantity: number;
+		priceAtOrder: number;
+		foodItem: {
+			id: string;
+			name: string;
+			imageUrl?: string | null;
+			price: number;
+		};
+	}>;
+	event: {
+		id: string;
+		name: string;
+	};
+}
+
 interface DataContextType {
 	events: Event[];
 	eventsLoading: boolean;
@@ -99,6 +124,12 @@ interface DataContextType {
 	foodItems: FoodItem[];
 	foodItemsLoading: boolean;
 	refreshFoodItems: () => Promise<void>;
+
+	// Team order management
+	teamOrders: TeamOrder[];
+	teamOrdersLoading: boolean;
+	refreshTeamOrders: (teamId?: string) => Promise<void>;
+	getCurrentTeamOrders: (teamId: string) => TeamOrder[];
 
 	refreshAll: () => Promise<void>;
 
@@ -122,6 +153,17 @@ interface DataContextType {
 		data: { name?: string; username?: string; password?: string },
 	) => Promise<void>;
 	deleteTeam: (id: string) => Promise<void>;
+
+	// Order management
+	createOrder: (data: {
+		teamId: string;
+		eventId: string;
+		items: Array<{
+			foodItemId: string;
+			quantity: number;
+			priceAtOrder: number;
+		}>;
+	}) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -140,6 +182,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [events, setEvents] = useState<Event[]>([]);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
+	const [teamOrders, setTeamOrders] = useState<TeamOrder[]>([]);
+	const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
 
 	const {
 		data: eventsData,
@@ -159,10 +203,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		refetch: refetchFoodItems,
 	} = api.food.getAllFoodItems.useQuery();
 
+	// Team order queries - only fetch when we have a current team
+	const {
+		data: teamOrdersData,
+		isLoading: teamOrdersLoading,
+		refetch: refetchTeamOrdersRefetch,
+	} = api.teams.getTeamOrderHistory.useQuery(
+		{ teamId: currentTeamId || "" },
+		{ enabled: !!currentTeamId },
+	);
+
 	// Team mutations
 	const createTeamMutation = api.teams.createTeam.useMutation();
 	const updateTeamMutation = api.teams.updateTeam.useMutation();
 	const deleteTeamMutation = api.teams.deleteTeam.useMutation();
+
+	// Order mutations
+	const createOrderMutation = api.orders.createOrder.useMutation();
 
 	useEffect(() => {
 		if (eventsData) {
@@ -182,6 +239,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	}, [foodItemsData]);
 
+	useEffect(() => {
+		if (teamOrdersData) {
+			setTeamOrders(teamOrdersData);
+		}
+	}, [teamOrdersData]);
+
 	const refreshEvents = async () => {
 		await refetchEvents();
 	};
@@ -194,8 +257,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		await refetchFoodItems();
 	};
 
+	const refreshTeamOrders = async (teamId?: string) => {
+		if (teamId && teamId !== currentTeamId) {
+			setCurrentTeamId(teamId);
+		}
+		if (currentTeamId || teamId) {
+			await refetchTeamOrdersRefetch();
+		}
+	};
+
+	const getCurrentTeamOrders = (teamId: string): TeamOrder[] => {
+		if (teamId === currentTeamId) {
+			return teamOrders;
+		}
+		return [];
+	};
+
 	const refreshAll = async () => {
 		await Promise.all([refetchEvents(), refetchTeams(), refetchFoodItems()]);
+		if (currentTeamId) {
+			await refreshTeamOrders();
+		}
 	};
 
 	const getEventById = (id: string) => {
@@ -254,6 +336,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		await refetchTeams();
 	};
 
+	const createOrder = async (data: {
+		teamId: string;
+		eventId: string;
+		items: Array<{
+			foodItemId: string;
+			quantity: number;
+			priceAtOrder: number;
+		}>;
+	}) => {
+		await createOrderMutation.mutateAsync(data);
+		// Refresh team orders and food items after creating order
+		await refreshTeamOrders(data.teamId);
+		await refreshFoodItems(); // To update quantities
+	};
+
 	const value: DataContextType = {
 		events,
 		eventsLoading,
@@ -266,6 +363,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		foodItems,
 		foodItemsLoading,
 		refreshFoodItems,
+
+		// Team order management
+		teamOrders,
+		teamOrdersLoading,
+		refreshTeamOrders,
+		getCurrentTeamOrders,
 
 		refreshAll,
 
@@ -281,6 +384,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 		createTeam,
 		updateTeam,
 		deleteTeam,
+
+		// Order management
+		createOrder,
 	};
 
 	return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

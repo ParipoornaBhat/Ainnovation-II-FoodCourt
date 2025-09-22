@@ -46,6 +46,7 @@ import {
 	DollarSign,
 	ShoppingCart,
 	RefreshCw,
+	Download,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
@@ -55,6 +56,7 @@ import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { EditTeamModal } from "@/components/edit-team-modal";
 import { formatDistanceToNow } from "date-fns";
+import { generateTeamsPDF } from "@/lib/pdf-generator";
 
 type SortField = "name" | "event" | "orders" | "lastOrder";
 type SortDirection = "asc" | "desc";
@@ -100,6 +102,17 @@ export default function TeamManagement() {
 	const handleDeleteTeam = async (teamId: string) => {
 		await deleteTeamMutation.mutateAsync({ id: teamId });
 		setSelectedTeams(selectedTeams.filter((id) => id !== teamId));
+	};
+
+	const handleDownloadPDF = async () => {
+		try {
+			toast.success("Generating PDF... This may take a moment.");
+			await generateTeamsPDF(filteredAndSortedTeams);
+			toast.success("PDF downloaded successfully!");
+		} catch (error) {
+			console.error("Error generating PDF:", error);
+			toast.error("Failed to generate PDF. Please try again.");
+		}
 	};
 
 	const filteredAndSortedTeams = useMemo(() => {
@@ -190,6 +203,14 @@ export default function TeamManagement() {
 						>
 							<RefreshCw className="h-4 w-4" />
 							Refresh
+						</Button>
+						<Button
+							variant="outline"
+							className="gap-2 bg-transparent"
+							onClick={handleDownloadPDF}
+						>
+							<Download className="h-4 w-4" />
+							Download QR Codes
 						</Button>
 						<Button variant="outline" className="gap-2 bg-transparent" asChild>
 							<Link href="/admin/teams/bulk">
@@ -511,9 +532,7 @@ export default function TeamManagement() {
 													<CardHeader className="pb-3">
 														<div className="flex items-center justify-between">
 															<div>
-																<p className="font-medium">
-																	Order #{order.id}
-																</p>
+																<p className="font-medium">Order #{order.id}</p>
 																<p className="text-sm text-muted-foreground">
 																	{new Date(order.placedAt).toLocaleString()}
 																</p>

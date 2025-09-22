@@ -18,7 +18,6 @@ import {
 	Minus,
 	ShoppingCart,
 	AlertTriangle,
-	DollarSign,
 	Calendar,
 	Clock,
 } from "lucide-react";
@@ -34,6 +33,7 @@ import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { useAppData } from "@/contexts/DataContext";
 
 interface CartItem {
 	foodItemId: string;
@@ -62,6 +62,10 @@ export default function TeamOrderPage() {
 	const { toast } = useToast();
 	const [cart, setCart] = useState<Record<string, CartItem>>({});
 	const [showOrderPreview, setShowOrderPreview] = useState(false);
+	const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+	// Use DataContext for order management
+	const { createOrder } = useAppData();
 
 	const teamId = session?.user?.id;
 	const eventId = session?.user?.eventId;
@@ -96,26 +100,6 @@ export default function TeamOrderPage() {
 		{ teamId: teamId as string },
 		{ enabled: shouldFetchData },
 	);
-
-	// Create order mutation
-	const createOrderMutation = api.orders.createOrder.useMutation({
-		onSuccess: () => {
-			toast({
-				title: "Order placed successfully!",
-				description: "You can track your order status in the order history.",
-			});
-			setCart({});
-			setShowOrderPreview(false);
-			router.push("/team/dashboard");
-		},
-		onError: (error) => {
-			toast({
-				title: "Failed to place order",
-				description: error.message,
-				variant: "destructive",
-			});
-		},
-	});
 
 	// Show loading while checking authentication
 	if (status === "loading") {
@@ -285,11 +269,31 @@ export default function TeamOrderPage() {
 		const orderItems = Object.values(cart);
 		if (orderItems.length === 0) return;
 
-		createOrderMutation.mutate({
-			teamId,
-			eventId,
-			items: orderItems,
-		});
+		try {
+			setIsCreatingOrder(true);
+			await createOrder({
+				teamId,
+				eventId,
+				items: orderItems,
+			});
+
+			toast({
+				title: "Order placed successfully!",
+				description: "You can track your order status in the order history.",
+			});
+			setCart({});
+			setShowOrderPreview(false);
+			router.push("/team/dashboard");
+		} catch (error) {
+			toast({
+				title: "Failed to place order",
+				description:
+					error instanceof Error ? error.message : "Something went wrong",
+				variant: "destructive",
+			});
+		} finally {
+			setIsCreatingOrder(false);
+		}
 	};
 
 	if (eventNotStarted) {
@@ -496,11 +500,9 @@ export default function TeamOrderPage() {
 										<Button
 											className="flex-1 gap-2"
 											onClick={placeOrder}
-											disabled={createOrderMutation.isPending}
+											disabled={isCreatingOrder}
 										>
-											{createOrderMutation.isPending
-												? "Placing Order..."
-												: "Place Order"}
+											{isCreatingOrder ? "Placing Order..." : "Place Order"}
 										</Button>
 									</div>
 								</div>

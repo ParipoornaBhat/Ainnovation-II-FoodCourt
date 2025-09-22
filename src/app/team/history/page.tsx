@@ -13,12 +13,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle, XCircle, Package } from "lucide-react";
-import { api } from "@/trpc/react";
+import { useAppData } from "@/contexts/DataContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrderHistoryPage() {
 	const { data: session, status } = useSession();
 	const router = useRouter();
+
+	// Use DataContext instead of direct API calls
+	const { getCurrentTeamOrders, refreshTeamOrders, teamOrdersLoading } =
+		useAppData();
 
 	const teamId = session?.user?.id;
 
@@ -31,12 +35,15 @@ export default function OrderHistoryPage() {
 		}
 	}, [session, status, router]);
 
-	// Get team's order history
-	const { data: orderHistory = [], isLoading: ordersLoading } =
-		api.orders.getTeamOrders.useQuery(
-			{ teamId: teamId as string },
-			{ enabled: !!teamId && session?.user?.role === "TEAM" },
-		);
+	// Load team orders when session is available
+	useEffect(() => {
+		if (teamId && session?.user?.role === "TEAM") {
+			refreshTeamOrders(teamId);
+		}
+	}, [teamId, session?.user?.role, refreshTeamOrders]);
+
+	// Get team's order history from context
+	const orderHistory = teamId ? getCurrentTeamOrders(teamId) : [];
 
 	// Show loading while checking authentication
 	if (status === "loading") {
@@ -143,7 +150,7 @@ export default function OrderHistoryPage() {
 		}
 	};
 
-	if (ordersLoading) {
+	if (teamOrdersLoading) {
 		return (
 			<TeamLayout>
 				<div className="space-y-6">
