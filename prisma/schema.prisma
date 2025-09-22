@@ -106,7 +106,22 @@ model Team {
   event   Event?  @relation(fields: [eventId], references: [id])
   eventId String?
 
-  orders Order[]
+  orders      Order[]
+  credentials TeamCredential[]
+}
+
+model TeamCredential {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String
+
+  @@index([teamId])
 }
 
 model Inventory {

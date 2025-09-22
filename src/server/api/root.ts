@@ -13,6 +13,7 @@ import { eventRouter } from "./routers/events";
 import { foodRouter } from "./routers/food";
 import { teamsRouter } from "./routers/teams";
 import { ordersRouter } from "./routers/orders";
+import { teamCredentialsRouter } from "./routers/teamCredentials";
 
 // Dummy API router
 const dummyRouter = createTRPCRouter({
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
 	food: foodRouter,
 	teams: teamsRouter,
 	orders: ordersRouter,
+	teamCredentials: teamCredentialsRouter,
 	dummy: dummyRouter,
 });
 
