@@ -203,7 +203,11 @@ async function drawTeamSection(
 	const passwordWidth = doc.getTextWidth("Password: ");
 	doc.setFont("helvetica", "italic");
 	doc.setFontSize(10);
-	doc.text("Team Leader's Phone Number", leftX + passwordWidth, currentY);
+	doc.text(
+		"Last 4 digits of Team Leader's Phone Number",
+		leftX + passwordWidth,
+		currentY,
+	);
 	currentY += lineHeight + 3;
 
 	// Website URL (only if there's space)
