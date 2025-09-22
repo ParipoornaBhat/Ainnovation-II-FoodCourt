@@ -61,7 +61,7 @@ export default function TeamLoginPage() {
 					"max-age=10",
 					"path=/",
 				].join("; ");
-				router.push("/team");
+				window.location.href = "/team";
 			} else {
 				alert("An unexpected error occurred. Please try again.");
 			}
@@ -132,16 +132,12 @@ export default function TeamLoginPage() {
 							</div>
 						</div>
 
-						
-
 						<Button type="submit" className="w-full h-11 text-base font-medium">
 							Sign In to Team Portal
 						</Button>
 					</form>
 
 					<div className="mt-6 text-center space-y-4">
-						
-
 						<div className="pt-4 border-t">
 							<p className="text-sm text-muted-foreground">
 								Need admin access?{" "}
