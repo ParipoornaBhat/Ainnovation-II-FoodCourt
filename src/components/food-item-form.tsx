@@ -157,7 +157,7 @@ export function FoodItemForm({ item, onSubmit, onCancel }: FoodItemFormProps) {
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="image">Image</Label>
+						{/* <Label htmlFor="image">Image</Label>
 						<div className="flex items-center gap-4">
 							<Input
 								id="image"
@@ -175,20 +175,21 @@ export function FoodItemForm({ item, onSubmit, onCancel }: FoodItemFormProps) {
 								<Upload className="h-4 w-4" />
 								Upload
 							</Button>
-						</div>
+						</div> */}
 						{formData.imageUrl && (
-							<div className="mt-2">
-								{/** biome-ignore lint/performance/noImgElement: <its fine for now> */}
-								<img
-									src={formData.imageUrl || "/placeholder.svg"}
-									alt="Preview"
-									className="w-32 h-32 object-cover rounded-md border"
-									onError={(e) => {
-										e.currentTarget.src =
-											"/placeholder.svg?height=128&width=128";
-									}}
-								/>
-							</div>
+							// <div className="mt-2">
+							// 	{/** biome-ignore lint/performance/noImgElement: <its fine for now> */}
+							// 	<img
+							// 		src={formData.imageUrl || "/placeholder.svg"}
+							// 		alt="Preview"
+							// 		className="w-32 h-32 object-cover rounded-md border"
+							// 		onError={(e) => {
+							// 			e.currentTarget.src =
+							// 				"/placeholder.svg?height=128&width=128";
+							// 		}}
+							// 	/>
+							// </div>
+							<></>
 						)}
 					</div>
 

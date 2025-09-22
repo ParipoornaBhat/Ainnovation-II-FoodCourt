@@ -146,12 +146,19 @@ model FoodItem {
   InventoryItem InventoryItem[]
 }
 
+enum OrderStatusType {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
 model Order {
-  id            String   @id @default(cuid())
+  id            Int             @id @default(autoincrement())
   totalAmount   Float
-  paymentStatus String   @default("pending") // pending | paid
-  orderStatus   String   @default("pending") // pending | confirmed | completed | cancelled
-  placedAt      DateTime @default(now())
+  paymentStatus String          @default("unpaid")
+  orderStatus   OrderStatusType @default(PENDING) // pending | confirmed | completed | cancelled
+  placedAt      DateTime        @default(now())
 
   team   Team   @relation(fields: [teamId], references: [id])
   teamId String
@@ -167,8 +174,8 @@ model OrderItem {
   quantity     Int
   priceAtOrder Float
 
-  order   Order  @relation(fields: [orderId], references: [id])
-  orderId String
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
 
   foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
   foodItemId String

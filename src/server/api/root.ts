@@ -12,6 +12,7 @@ import { publicProcedure } from "@/server/api/trpc";
 import { eventRouter } from "./routers/events";
 import { foodRouter } from "./routers/food";
 import { teamsRouter } from "./routers/teams";
+import { ordersRouter } from "./routers/orders";
 
 // Dummy API router
 const dummyRouter = createTRPCRouter({
@@ -26,6 +27,7 @@ export const appRouter = createTRPCRouter({
 	events: eventRouter,
 	food: foodRouter,
 	teams: teamsRouter,
+	orders: ordersRouter,
 	dummy: dummyRouter,
 });
 

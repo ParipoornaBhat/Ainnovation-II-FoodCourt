@@ -512,7 +512,7 @@ export default function TeamManagement() {
 														<div className="flex items-center justify-between">
 															<div>
 																<p className="font-medium">
-																	Order #{order.id.slice(-8)}
+																	Order #{order.id}
 																</p>
 																<p className="text-sm text-muted-foreground">
 																	{new Date(order.placedAt).toLocaleString()}

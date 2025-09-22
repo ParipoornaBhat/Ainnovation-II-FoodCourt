@@ -55,7 +55,7 @@ export interface Team {
 		name: string;
 	} | null;
 	orders: Array<{
-		id: string;
+		id: number;
 		totalAmount: number;
 		orderStatus: string;
 		placedAt: Date;

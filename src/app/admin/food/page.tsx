@@ -20,7 +20,11 @@ import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { useAppData } from "@/contexts/DataContext";
 
 export default function FoodManagement() {
-	const { foodItems: allFoodItems, foodItemsLoading: isLoading, refreshFoodItems } = useAppData();
+	const {
+		foodItems: allFoodItems,
+		foodItemsLoading: isLoading,
+		refreshFoodItems,
+	} = useAppData();
 
 	const [updateIsLoading, setUpdateIsLoading] = useState(false);
 	const [editingStock, setEditingStock] = useState<Record<string, number>>({});
@@ -248,7 +252,7 @@ export default function FoodManagement() {
 									<div className="flex items-center justify-between">
 										<span className="text-sm font-medium">Price:</span>
 										<span className="font-semibold text-green-600">
-											{item.price <= 0 ? "Free" : `${item.price}rs`}
+											{item.price <= 0 ? "Free" : `₹${item.price}`}
 										</span>
 									</div>
 
