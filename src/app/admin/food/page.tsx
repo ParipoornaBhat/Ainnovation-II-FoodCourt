@@ -49,6 +49,7 @@ export default function FoodManagement() {
 	const deleteFoodMutation = api.food.deleteFoodItem.useMutation({
 		onSuccess: () => {
 			toast.success("Food item deleted successfully");
+			refreshFoodItems();
 			// refetch();
 		},
 		onError: (error) => {

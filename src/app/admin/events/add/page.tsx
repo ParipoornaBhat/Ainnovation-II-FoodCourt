@@ -1,6 +1,7 @@
 "use client";
 import { AdminLayout } from "@/components/admin-layout";
 import { EventForm } from "@/components/event-form";
+import { useAppData } from "@/contexts/DataContext";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ interface EventFormData {
 export default function AddEventPage() {
 	const router = useRouter();
 	const { mutate: eventsMutation } = api.events.create.useMutation();
+	const { refreshEvents } = useAppData();
 
 	const handleSubmit = (data: EventFormData) => {
 		eventsMutation(
@@ -27,6 +29,7 @@ export default function AddEventPage() {
 			{
 				onSuccess: () => {
 					toast.success("Event created successfully");
+					refreshEvents();
 					router.push("/admin/events");
 				},
 				onError: (error) => {

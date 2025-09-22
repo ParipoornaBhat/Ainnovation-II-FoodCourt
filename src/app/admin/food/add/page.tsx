@@ -1,6 +1,7 @@
 "use client";
 import { AdminLayout } from "@/components/admin-layout";
 import { FoodItemForm } from "@/components/food-item-form";
+import { useAppData } from "@/contexts/DataContext";
 import { api } from "@/trpc/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ export default function AddFoodItemPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const returnUrl = searchParams.get("returnUrl") || "/admin/food";
+	const { refreshFoodItems } = useAppData();
 
 	const { mutate: addFood } = api.food.createFoodItem.useMutation();
 
@@ -39,6 +41,7 @@ export default function AddFoodItemPage() {
 		addFood(data, {
 			onSuccess: () => {
 				toast.success("Food item added successfully");
+				refreshFoodItems();
 				router.push(returnUrl);
 			},
 			onError: (error) => {

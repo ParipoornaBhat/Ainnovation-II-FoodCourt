@@ -14,6 +14,7 @@ import { foodRouter } from "./routers/food";
 import { teamsRouter } from "./routers/teams";
 import { ordersRouter } from "./routers/orders";
 import { quickLinkRouter } from "./routers/quicklink";
+import { teamCredentialsRouter } from "./routers/teamCredentials";
 // Dummy API router
 const dummyRouter = createTRPCRouter({
 	hello: publicProcedure

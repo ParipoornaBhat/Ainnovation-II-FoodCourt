@@ -141,7 +141,7 @@ model InventoryItem {
   inventory   Inventory @relation(fields: [inventoryId], references: [id])
   inventoryId String
 
-  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
   foodItemId String
 
   createdAt DateTime @default(now())
@@ -161,6 +161,7 @@ model FoodItem {
   orderItems    OrderItem[]
   InventoryItem InventoryItem[]
 }
+
 model QuickLink {
   id          String   @id @default(cuid())
   title       String
@@ -170,7 +171,6 @@ model QuickLink {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-
 
 enum OrderStatusType {
   PENDING
@@ -200,9 +200,9 @@ model OrderItem {
   quantity     Int
   priceAtOrder Float
 
-  order   Order @relation(fields: [orderId], references: [id])
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId Int
 
-  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
   foodItemId String
 }

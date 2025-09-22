@@ -125,7 +125,13 @@ export default function OrderManagement() {
 		}
 	};
 
-	const getPaymentStatusBadge = (paymentStatus: string) => {
+	const getPaymentStatusBadge = (
+		paymentStatus: string,
+		totalAmount: number,
+	) => {
+		if (totalAmount === 0) {
+			return <Badge className="bg-green-500">Free</Badge>;
+		}
 		switch (paymentStatus) {
 			case "paid":
 				return <Badge className="bg-green-500">Paid</Badge>;
@@ -420,20 +426,24 @@ export default function OrderManagement() {
 											</TableCell>
 											<TableCell>
 												<div className="flex items-center gap-2">
-													{getPaymentStatusBadge(order.paymentStatus)}
-													{order.paymentStatus === "pending" && (
-														<Button
-															size="sm"
-															variant="outline"
-															className="gap-1 bg-transparent"
-															onClick={() => handlePaymentUpdate(order.id)}
-															disabled={updatingOrder === order.id}
-														>
-															{updatingOrder === order.id
-																? "Updating..."
-																: "Mark Paid"}
-														</Button>
+													{getPaymentStatusBadge(
+														order.paymentStatus,
+														order.totalAmount,
 													)}
+													{order.paymentStatus === "pending" &&
+														order.totalAmount !== 0 && (
+															<Button
+																size="sm"
+																variant="outline"
+																className="gap-1 bg-transparent"
+																onClick={() => handlePaymentUpdate(order.id)}
+																disabled={updatingOrder === order.id}
+															>
+																{updatingOrder === order.id
+																	? "Updating..."
+																	: "Mark Paid"}
+															</Button>
+														)}
 													{order.paymentStatus === "paid" &&
 														order.orderStatus !== "COMPLETED" && (
 															<Button

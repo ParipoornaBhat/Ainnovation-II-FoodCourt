@@ -28,6 +28,7 @@ export const teamCredentialsRouter = createTRPCRouter({
 		.input(
 			z.object({
 				teamId: z.string(),
+				name: z.string().default(""),
 				email: z.string().nullable(),
 				password: z.string().nullable(),
 			}),
@@ -37,6 +38,7 @@ export const teamCredentialsRouter = createTRPCRouter({
 				return await ctx.db.teamCredential.create({
 					data: {
 						teamId: input.teamId,
+						name: input.name,
 						email: input.email,
 						password: input.password,
 					},
@@ -49,11 +51,11 @@ export const teamCredentialsRouter = createTRPCRouter({
 				});
 			}
 		}),
-
 	update: protectedProcedure
 		.input(
 			z.object({
 				id: z.string(),
+				name: z.string().optional(),
 				email: z.string().nullable(),
 				password: z.string().nullable(),
 			}),
@@ -63,6 +65,7 @@ export const teamCredentialsRouter = createTRPCRouter({
 				return await ctx.db.teamCredential.update({
 					where: { id: input.id },
 					data: {
+						name: input.name,
 						email: input.email,
 						password: input.password,
 					},

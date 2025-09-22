@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 type TeamCredential = {
 	id?: string;
+	name: string;
 	email: string | null;
 	password: string | null;
 	isNew?: boolean;
@@ -82,6 +83,7 @@ export const TeamCredentialsModal = ({
 			setCredentials(
 				teamCredentials.map((cred) => ({
 					id: cred.id,
+					name: cred.name || `Credential ${cred.id.slice(-4)}`,
 					email: cred.email,
 					password: cred.password,
 				})),
@@ -90,7 +92,15 @@ export const TeamCredentialsModal = ({
 	}, [teamCredentials]);
 
 	const handleAddCredential = () => {
-		setCredentials([...credentials, { email: "", password: "", isNew: true }]);
+		setCredentials([
+			...credentials,
+			{
+				name: `New Credential ${credentials.length + 1}`,
+				email: "",
+				password: "",
+				isNew: true,
+			},
+		]);
 	};
 
 	const handleRemoveCredential = async (index: number) => {
@@ -125,17 +135,19 @@ export const TeamCredentialsModal = ({
 
 		try {
 			for (const credential of credentials) {
-				if (!credential.email && !credential.password) continue; 
+				if (!credential.email && !credential.password) continue;
 
 				if (credential.isNew || !credential.id) {
 					await createCredentialMutation.mutateAsync({
 						teamId,
+						name: credential.name,
 						email: credential.email,
 						password: credential.password,
 					});
 				} else {
 					await updateCredentialMutation.mutateAsync({
 						id: credential.id,
+						name: credential.name,
 						email: credential.email,
 						password: credential.password,
 					});
@@ -182,7 +194,23 @@ export const TeamCredentialsModal = ({
 								key={credential.id || index}
 								className="flex items-start gap-2 p-3 border rounded-md bg-muted/20"
 							>
-								<div className="flex-1 grid grid-cols-2 gap-2">
+								<div className="flex-1 grid grid-cols-3 gap-2">
+									<div>
+										<Input
+											placeholder="Name"
+											value={credential.name || ""}
+											onChange={(e) => {
+												const updatedCredentials = [...credentials];
+												if (updatedCredentials[index]) {
+													updatedCredentials[index] = {
+														...updatedCredentials[index],
+														name: e.target.value,
+													};
+													setCredentials(updatedCredentials);
+												}
+											}}
+										/>
+									</div>
 									<Input
 										placeholder="Email"
 										value={credential.email || ""}

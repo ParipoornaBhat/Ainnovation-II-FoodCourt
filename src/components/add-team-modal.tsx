@@ -46,6 +46,7 @@ export function AddTeamModal({
 	const addTeamMutation = api.teams.addToEvent.useMutation({
 		onSuccess: () => {
 			toast.success("Team added successfully!");
+			refreshTeams();
 			setOpen(false);
 			setFormData({
 				name: "",

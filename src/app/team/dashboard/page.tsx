@@ -20,6 +20,7 @@ import {
 	ShoppingCart,
 	AlertCircle,
 	History,
+	Key,
 } from "lucide-react";
 import Link from "next/link";
 import { useAppData } from "@/contexts/DataContext";
@@ -57,7 +58,7 @@ export default function TeamDashboard() {
 
 	// Load team orders when session is available
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <no need>
-		useEffect(() => {
+	useEffect(() => {
 		if (teamId && session?.user?.role === "TEAM") {
 			refreshTeamOrders(teamId);
 		}
@@ -129,18 +130,6 @@ export default function TeamDashboard() {
 						</CardContent>
 					</Card>
 
-					{/* <Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">₹{totalSpent.toFixed(2)}</div>
-							<p className="text-xs text-muted-foreground">
-								{hasEvent ? "for this event" : "all time"}
-							</p>
-						</CardContent>
-					</Card> */}
-
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 							<CardTitle className="text-sm font-medium">Team Status</CardTitle>
@@ -151,6 +140,27 @@ export default function TeamDashboard() {
 							<p className="text-xs text-muted-foreground">
 								{hasEvent ? "Registered for event" : "No event assigned"}
 							</p>
+						</CardContent>
+					</Card>
+
+					<Card className="border-blue-100 dark:border-blue-800/40 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Credentials</CardTitle>
+							<Key className="h-4 w-4 text-blue-500" />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">View Access</div>
+							<p className="text-xs text-muted-foreground mb-3">
+								Access credentials for event resources
+							</p>
+							<Button
+								asChild
+								variant="outline"
+								size="sm"
+								className="w-full mt-auto"
+							>
+								<Link href="/team/credentials">View Credentials</Link>
+							</Button>
 						</CardContent>
 					</Card>
 				</div>
