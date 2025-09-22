@@ -162,51 +162,78 @@ async function drawTeamSection(
 	doc.setLineWidth(0.5);
 	doc.rect(x, y, width, height);
 
-	// Calculate center positions for vertical layout
-	const centerX = x + width / 2;
-	const startY = y + 15;
-	const lineHeight = 10; // Reduced line height
+	// Define layout sections
+	const leftSectionWidth = width * 0.6; // 60% for left content
+	const rightSectionWidth = width * 0.4; // 40% for right content
+	const leftX = x + 15; // Left margin
+	const rightX = x + leftSectionWidth + 10; // Right section start
+	const startY = y + 20;
+	const lineHeight = 8;
 
-	// Calculate QR code position first to ensure text doesn't overlap
-	const qrX = centerX - qrSize / 2;
-	const qrY = y + height - qrSize - 10; // Reduced bottom margin
-	const textEndY = qrY - 5; // Text should end 5px before QR code
+	// Calculate QR code position in left section
+	const qrX = leftX;
+	const qrY = y + height - qrSize - 15;
+	const textEndY = qrY - 10;
 
 	let currentY = startY;
 
-	// Team ID (bold and larger) - label and value on same line
+	// LEFT SECTION - Team details
+	// Team Name (bold and larger)
 	doc.setFontSize(14);
 	doc.setFont("helvetica", "bold");
-	doc.text(`Team ID: ${team.teamId}`, centerX, currentY, { align: "center" });
-	currentY += lineHeight + 2;
-
-	// Team Name - label and value on same line
-	doc.setFontSize(12);
+	doc.text("Team Name: ", leftX, currentY);
+	const teamNameWidth = doc.getTextWidth("Team Name: ");
 	doc.setFont("helvetica", "normal");
-	doc.text(`Team Name: ${team.name}`, centerX, currentY, { align: "center" });
-	currentY += lineHeight;
+	doc.text(team.name, leftX + teamNameWidth, currentY);
+	currentY += lineHeight + 3;
 
-	doc.text(`Username: ${team.username}`, centerX, currentY, {
-		align: "center",
-	});
-	currentY += lineHeight;
+	// Username
+	doc.setFontSize(12);
+	doc.setFont("helvetica", "bold");
+	doc.text("Username: ", leftX, currentY);
+	const usernameWidth = doc.getTextWidth("Username: ");
+	doc.setFont("helvetica", "normal");
+	doc.text(team.username, leftX + usernameWidth, currentY);
+	currentY += lineHeight + 3;
 
+	// Password info
+	doc.setFontSize(11);
+	doc.setFont("helvetica", "bold");
+	doc.text("Password: ", leftX, currentY);
+	const passwordWidth = doc.getTextWidth("Password: ");
 	doc.setFont("helvetica", "italic");
 	doc.setFontSize(10);
-	doc.text("(Password is your Team Leader's Phone Number)", centerX, currentY, {
-		align: "center",
-	});
-	currentY += lineHeight;
+	doc.text("Team Leader's Phone Number", leftX + passwordWidth, currentY);
+	currentY += lineHeight + 3;
 
-	// Website URL (only if there's space) - label and value on same line
+	// Website URL (only if there's space)
 	if (currentY + lineHeight < textEndY) {
 		doc.setFontSize(10);
-		doc.text(`Website: ${env.NEXT_PUBLIC_WEBSITE_URL}`, centerX, currentY, {
-			align: "center",
-		});
+		doc.setFont("helvetica", "bold");
+		doc.text("Website:", leftX, currentY);
+		currentY += lineHeight;
+
+		doc.setFont("helvetica", "normal");
+		doc.text(env.NEXT_PUBLIC_WEBSITE_URL, leftX, currentY);
 	}
 
-	// Add QR code at the bottom
+	// RIGHT SECTION - Team ID prominently displayed
+	const rightCenterX = rightX + rightSectionWidth / 2;
+	const teamIdY = y + 40;
+
+	// "Team ID" heading
+	doc.setFontSize(24);
+	doc.setFont("helvetica", "bold");
+	doc.text("Team ID", rightCenterX, teamIdY, { align: "center" });
+
+	// Team ID number in big font
+	doc.setFontSize(64);
+	doc.setFont("helvetica", "bold");
+	doc.text(team.teamId.toString(), rightCenterX, teamIdY + 25, {
+		align: "center",
+	});
+
+	// Add QR code at the bottom left
 	if (qrDataUrl) {
 		try {
 			doc.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
@@ -214,21 +241,21 @@ async function drawTeamSection(
 			// Add label for QR code
 			doc.setFontSize(8);
 			doc.setFont("helvetica", "italic");
-			doc.text("Scan to visit website", centerX, qrY + qrSize + 5, {
+			doc.text("Scan to visit website", qrX + qrSize / 2, qrY + qrSize + 8, {
 				align: "center",
 			});
 		} catch (error) {
 			console.error("Error adding QR code to PDF:", error);
 			// Add placeholder text if QR code fails
 			doc.setFontSize(10);
-			doc.text("QR Code unavailable", centerX, qrY + qrSize / 2, {
+			doc.text("QR Code unavailable", qrX + qrSize / 2, qrY + qrSize / 2, {
 				align: "center",
 			});
 		}
 	} else {
 		// Add placeholder if no QR code
 		doc.setFontSize(10);
-		doc.text("QR Code unavailable", centerX, qrY + qrSize / 2, {
+		doc.text("QR Code unavailable", qrX + qrSize / 2, qrY + qrSize / 2, {
 			align: "center",
 		});
 	}

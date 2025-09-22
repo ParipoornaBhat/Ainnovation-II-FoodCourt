@@ -71,25 +71,25 @@ export const eventRouter = createTRPCRouter({
 			});
 		}),
 
-	addTeamToEvent: protectedProcedure
-		.input(
-			z.object({
-				eventId: z.string(),
-				name: z.string(),
-				username: z.string(),
-				password: z.string(),
-			}),
-		)
-		.mutation(async ({ ctx, input }) => {
-			return await ctx.db.team.create({
-				data: {
-					name: input.name,
-					username: input.username,
-					password: input.password, // Should be hashed in production
-					eventId: input.eventId,
-				},
-			});
-		}),
+	// addTeamToEvent: protectedProcedure
+	// 	.input(
+	// 		z.object({
+	// 			eventId: z.string(),
+	// 			name: z.string(),
+	// 			username: z.string(),
+	// 			password: z.string(),
+	// 		}),
+	// 	)
+	// 	.mutation(async ({ ctx, input }) => {
+	// 		return await ctx.db.team.create({
+	// 			data: {
+	// 				name: input.name,
+	// 				username: input.username,
+	// 				password: input.password, // Should be hashed in production
+	// 				eventId: input.eventId,
+	// 			},
+	// 		});
+	// 	}),
 
 	removeTeamFromEvent: protectedProcedure
 		.input(
