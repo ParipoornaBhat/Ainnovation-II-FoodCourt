@@ -132,18 +132,7 @@ export default function TeamLoginPage() {
 							</div>
 						</div>
 
-						<div className="flex items-center space-x-2">
-							<Checkbox
-								id="remember"
-								checked={formData.rememberMe}
-								onCheckedChange={(checked) =>
-									setFormData({ ...formData, rememberMe: checked as boolean })
-								}
-							/>
-							<Label htmlFor="remember" className="text-sm font-normal">
-								Keep me signed in
-							</Label>
-						</div>
+						
 
 						<Button type="submit" className="w-full h-11 text-base font-medium">
 							Sign In to Team Portal
@@ -151,12 +140,7 @@ export default function TeamLoginPage() {
 					</form>
 
 					<div className="mt-6 text-center space-y-4">
-						<Link
-							href="/team/forgot-password"
-							className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
-						>
-							Forgot your team password?
-						</Link>
+						
 
 						<div className="pt-4 border-t">
 							<p className="text-sm text-muted-foreground">

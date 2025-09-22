@@ -9,7 +9,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      {/* <Navigation /> */}
       <div className="flex h-[calc(100vh-4rem)]">
         <AdminSidebar />
         <main className="flex-1 overflow-auto">

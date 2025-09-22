@@ -31,7 +31,7 @@ export function TeamLayout({ children }: TeamLayoutProps) {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navigation />
+			{/* <Navigation /> */}
 
 			{/* Team Navigation */}
 			<div className="border-b bg-card">

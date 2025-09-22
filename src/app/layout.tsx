@@ -10,6 +10,7 @@ import { FlashToast } from "@/app/_components/Flash-error";
 import { SessionProvider } from "next-auth/react";
 import { TRPCReactProvider } from "@/trpc/react";
 import { DataProvider } from "@/contexts/DataContext";
+import { Navigation } from "@/components/navigation";
 
 // Load Google Fonts
 const inter = Inter({
@@ -56,6 +57,7 @@ export default function RootLayout({
 								>
 									{" "}
 									<FlashToast />
+									<Navigation />
 									{children}
 								</ThemeProvider>
 							</DataProvider>

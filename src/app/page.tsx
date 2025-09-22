@@ -12,12 +12,12 @@ import { Users, Shield, Utensils } from "lucide-react";
 import Link from "next/link";
 import { OrderFoodButton } from "@/components/order-food-button";
 import { TeamLoginButton } from "@/components/team-login-button";
-
+import QuickLinkButton from "@/components/quicklink-button";
 export default function HomePage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<Navigation />
-
+			
+			<QuickLinkButton />
 			{/* Hero Section */}
 			<section className="relative py-20 px-4">
 				<div className="container mx-auto text-center">
