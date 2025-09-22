@@ -97,6 +97,7 @@ model Event {
 
 model Team {
   id        String   @id @default(cuid())
+  teamId    Int      @unique
   name      String
   username  String   @unique
   password  String // hashed password

@@ -177,7 +177,7 @@ async function drawTeamSection(
 	// Team ID (bold and larger) - label and value on same line
 	doc.setFontSize(14);
 	doc.setFont("helvetica", "bold");
-	doc.text(`Team ID: ${team.id}`, centerX, currentY, { align: "center" });
+	doc.text(`Team ID: ${team.teamId}`, centerX, currentY, { align: "center" });
 	currentY += lineHeight + 2;
 
 	// Team Name - label and value on same line
@@ -187,6 +187,13 @@ async function drawTeamSection(
 	currentY += lineHeight;
 
 	doc.text(`Username: ${team.username}`, centerX, currentY, {
+		align: "center",
+	});
+	currentY += lineHeight;
+
+	doc.setFont("helvetica", "italic");
+	doc.setFontSize(10);
+	doc.text("(Password is your Team Leader's Phone Number)", centerX, currentY, {
 		align: "center",
 	});
 	currentY += lineHeight;

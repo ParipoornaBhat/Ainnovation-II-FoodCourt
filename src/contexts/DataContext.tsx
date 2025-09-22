@@ -45,6 +45,7 @@ export interface Event {
 
 export interface Team {
 	id: string;
+	teamId: number;
 	name: string;
 	username: string;
 	password: string;
