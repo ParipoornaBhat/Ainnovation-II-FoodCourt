@@ -408,7 +408,9 @@ export default function TeamOrderPage() {
 														<div>
 															<h4 className="font-semibold">{item.name}</h4>
 															<p className="text-sm text-muted-foreground">
-																₹{item.price} each
+																{item.price === 0
+																	? "Free"
+																	: `₹${item.price} each`}
 															</p>
 															{item.restrictions &&
 																item.restrictions.length > 0 && (
@@ -430,7 +432,9 @@ export default function TeamOrderPage() {
 													</div>
 													<div className="text-right">
 														<p className="font-semibold text-lg">
-															₹{(item.price * item.quantity).toFixed(2)}
+															{item.price === 0
+																? "Free"
+																: `₹${(item.price * item.quantity).toFixed(2)}`}
 														</p>
 														<p className="text-sm text-muted-foreground">
 															Qty: {item.quantity}
@@ -457,7 +461,9 @@ export default function TeamOrderPage() {
 															{item.name} × {item.quantity}
 														</span>
 														<span>
-															₹{(item.price * item.quantity).toFixed(2)}
+															{item.price === 0
+																? "Free"
+																: `₹${(item.price * item.quantity).toFixed(2)}`}
 														</span>
 													</div>
 												);
@@ -468,7 +474,9 @@ export default function TeamOrderPage() {
 												Total Amount:
 											</span>
 											<span className="text-2xl font-bold text-primary">
-												₹{getTotalPrice().toFixed(2)}
+												{getTotalPrice() === 0
+													? "Free"
+													: `₹${getTotalPrice().toFixed(2)}`}
 											</span>
 										</div>
 										<p className="text-xs text-muted-foreground mt-2">
@@ -490,7 +498,6 @@ export default function TeamOrderPage() {
 											onClick={placeOrder}
 											disabled={createOrderMutation.isPending}
 										>
-											<DollarSign className="h-4 w-4" />
 											{createOrderMutation.isPending
 												? "Placing Order..."
 												: "Place Order"}
@@ -545,13 +552,19 @@ export default function TeamOrderPage() {
 								>
 									<CardHeader className="pb-4">
 										<div className="relative">
-											<Image
-												src={foodItem.imageUrl || "/placeholder.svg"}
-												alt={foodItem.name}
-												width={400}
-												height={160}
-												className="w-full h-40 object-cover rounded-md bg-muted"
-											/>
+											{foodItem.imageUrl ? (
+												<Image
+													src={foodItem.imageUrl || "/placeholder.svg"}
+													alt={foodItem.name}
+													width={400}
+													height={160}
+													className="w-full h-40 object-cover rounded-md bg-muted"
+												/>
+											) : (
+												<div className="h-40">
+													<Badge>No image</Badge>
+												</div>
+											)}
 											{foodItem.restrictions &&
 												foodItem.restrictions.length > 0 && (
 													<div className="absolute top-2 right-2 bg-background/90 rounded-full p-1">
@@ -574,7 +587,7 @@ export default function TeamOrderPage() {
 												</Badge>
 											)}
 											<Badge className="absolute bottom-2 right-2 bg-primary text-primary-foreground">
-												₹{foodItem.price}
+												{foodItem.price === 0 ? "Free" : `₹${foodItem.price}`}
 											</Badge>
 										</div>
 										<div>
@@ -653,11 +666,11 @@ export default function TeamOrderPage() {
 														<Plus className="h-3 w-3" />
 													</Button>
 												</div>
-												<div className="text-sm text-muted-foreground">
+												{/* <div className="text-sm text-muted-foreground">
 													{remainingForTeam > 0
 														? `${remainingForTeam} remaining`
 														: "Limit reached"}
-												</div>
+												</div> */}
 											</div>
 										)}
 

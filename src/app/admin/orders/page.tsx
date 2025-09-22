@@ -21,14 +21,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	Clock,
-	CheckCircle,
-	XCircle,
-	AlertCircle,
-	DollarSign,
-	Eye,
-} from "lucide-react";
+import { Clock, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -87,7 +80,8 @@ export default function OrderManagement() {
 
 	const inProgressOrders = allOrders.filter(
 		(order) =>
-			order.orderStatus === OrderStatusType.CONFIRMED || order.orderStatus === OrderStatusType.PENDING,
+			order.orderStatus === OrderStatusType.CONFIRMED ||
+			order.orderStatus === OrderStatusType.PENDING,
 	);
 
 	const deliveredTodayOrders = todayOrders.filter(
@@ -191,8 +185,12 @@ export default function OrderManagement() {
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 						{[...Array(5)].map((_, i) => (
-							<Card key={`loading-card-${// biome-ignore lint/suspicious/noArrayIndexKey: <no need>
-i}`}>
+							<Card
+								key={`loading-card-${
+									// biome-ignore lint/suspicious/noArrayIndexKey: <no need>
+									i
+								}`}
+							>
 								<CardHeader className="pb-2">
 									<Skeleton className="h-4 w-20" />
 								</CardHeader>
@@ -210,8 +208,13 @@ i}`}>
 						<CardContent>
 							<div className="space-y-4">
 								{[...Array(5)].map((_, i) => (
-									<Skeleton key={`loading-row-${// biome-ignore lint/suspicious/noArrayIndexKey: <no need>
-i}`} className="h-16 w-full" />
+									<Skeleton
+										key={`loading-row-${
+											// biome-ignore lint/suspicious/noArrayIndexKey: <no need>
+											i
+										}`}
+										className="h-16 w-full"
+									/>
 								))}
 							</div>
 						</CardContent>
@@ -288,7 +291,7 @@ i}`} className="h-16 w-full" />
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold">
-								${todayRevenue.toFixed(2)}
+								{todayRevenue.toFixed(2)}rs
 							</div>
 							<p className="text-xs text-muted-foreground">Today's earnings</p>
 						</CardContent>
@@ -301,7 +304,7 @@ i}`} className="h-16 w-full" />
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold">
-								${pendingPayments.toFixed(2)}
+								{pendingPayments.toFixed(2)}rs
 							</div>
 							<p className="text-xs text-muted-foreground">Awaiting payment</p>
 						</CardContent>
@@ -372,15 +375,16 @@ i}`} className="h-16 w-full" />
 																			Quantity: {item.quantity}
 																		</p>
 																		<p className="text-sm text-muted-foreground">
-																			${item.priceAtOrder} each
+																			{item.priceAtOrder === 0
+																				? "Free"
+																				: `${item.priceAtOrder}rs each`}
 																		</p>
 																	</div>
 																	<div className="text-right">
 																		<p className="font-semibold">
-																			$
-																			{(
-																				item.priceAtOrder * item.quantity
-																			).toFixed(2)}
+																			{item.priceAtOrder * item.quantity === 0
+																				? "Free"
+																				: `${(item.priceAtOrder * item.quantity).toFixed(2)}rs`}
 																		</p>
 																	</div>
 																</div>
@@ -391,7 +395,9 @@ i}`} className="h-16 w-full" />
 																		Total Amount:
 																	</span>
 																	<span className="text-xl font-bold">
-																		${order.totalAmount.toFixed(2)}
+																		{order.totalAmount === 0
+																			? "Free"
+																			: `${order.totalAmount.toFixed(2)}rs`}
 																	</span>
 																</div>
 															</div>
@@ -400,7 +406,9 @@ i}`} className="h-16 w-full" />
 												</Dialog>
 											</TableCell>
 											<TableCell className="font-semibold">
-												${order.totalAmount.toFixed(2)}
+												{order.totalAmount === 0
+													? "Free"
+													: `${order.totalAmount.toFixed(2)}rs`}
 											</TableCell>
 											<TableCell>
 												<div className="flex items-center gap-2">
@@ -421,7 +429,6 @@ i}`} className="h-16 w-full" />
 															onClick={() => handlePaymentUpdate(order.id)}
 															disabled={updatingOrder === order.id}
 														>
-															<DollarSign className="h-3 w-3" />
 															{updatingOrder === order.id
 																? "Updating..."
 																: "Mark Paid"}
