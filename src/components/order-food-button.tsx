@@ -10,7 +10,6 @@ export function OrderFoodButton() {
 	const router = useRouter();
 
 	const handleClick = () => {
-		console.log(session);
 		if (session?.user?.role === "TEAM") {
 			router.push("/team/dashboard");
 		} else {

@@ -21,7 +21,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Clock, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
+import {
+	Clock,
+	CheckCircle,
+	XCircle,
+	AlertCircle,
+	Eye,
+	ChevronDown,
+	ChevronRight,
+	Utensils,
+} from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -30,7 +39,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/trpc/react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,8 +47,34 @@ import { OrderStatusType } from "@prisma/client";
 
 export default function OrderManagement() {
 	const [updatingOrder, setUpdatingOrder] = useState<number | null>(null);
+	const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
 	const { toast } = useToast();
 
+	const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+	// Add a function to toggle expanded state of order rows
+	const toggleOrderExpand = (orderId: number) => {
+		setExpandedOrders((current) =>
+			current.includes(orderId)
+				? current.filter((id) => id !== orderId)
+				: [...current, orderId],
+		);
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <its fine>
+	useEffect(() => {
+		const id = setInterval(() => {
+			refetchOrders();
+		}, 60000);
+
+		setIntervalId(id);
+
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId);
+			}
+		};
+	}, []);
 	// Get all orders
 	const {
 		data: allOrders = [],
@@ -243,13 +278,22 @@ export default function OrderManagement() {
 						</p>
 					</div>
 					<div className="flex items-center space-x-2">
-						<Switch id="override-restrictions" />
+						{/* <Switch id="override-restrictions" />
 						<Label
 							htmlFor="override-restrictions"
 							className="text-sm font-medium"
 						>
 							Override Quantity Restrictions
-						</Label>
+						</Label> */}
+						<Button
+							variant="outline"
+							size="sm"
+							className="bg-transparent"
+							onClick={() => refetchOrders()}
+							disabled={ordersLoading}
+						>
+							{ordersLoading ? "Refreshing..." : "Refresh Data"}
+						</Button>
 					</div>
 				</div>
 
@@ -332,7 +376,10 @@ export default function OrderManagement() {
 									<TableRow>
 										<TableHead>Order ID</TableHead>
 										<TableHead>Team Name</TableHead>
+										<TableHead>Team ID</TableHead>
+
 										<TableHead>Event</TableHead>
+
 										<TableHead>Items</TableHead>
 										<TableHead>Amount</TableHead>
 										<TableHead>Status</TableHead>
@@ -343,156 +390,260 @@ export default function OrderManagement() {
 								</TableHeader>
 								<TableBody>
 									{allOrders.map((order) => (
-										<TableRow key={order.id} className="hover:bg-muted/50">
-											<TableCell className="font-medium">#{order.id}</TableCell>
-											<TableCell>{order.team.name}</TableCell>
-											<TableCell className="max-w-32 truncate">
-												{order.event.name}
-											</TableCell>
-											<TableCell>
-												<Dialog>
-													<DialogTrigger asChild>
-														<Button variant="ghost" size="sm" className="gap-2">
-															<Eye className="h-3 w-3" />
-															{order.items.length} items
-														</Button>
-													</DialogTrigger>
-													<DialogContent className="max-w-2xl">
-														<DialogHeader>
-															<DialogTitle>
-																Order Details - #{order.id}
-															</DialogTitle>
-															<DialogDescription>
-																{order.team.name} •{" "}
-																{new Date(order.placedAt).toLocaleString()}
-															</DialogDescription>
-														</DialogHeader>
-														<div className="space-y-4">
-															{order.items.map((item) => (
-																<div
-																	key={item.id}
-																	className="flex justify-between items-center p-3 border rounded"
-																>
-																	<div>
-																		<h4 className="font-medium">
-																			{item.foodItem.name}
-																		</h4>
-																		<p className="text-sm text-muted-foreground">
-																			Quantity: {item.quantity}
-																		</p>
-																		<p className="text-sm text-muted-foreground">
-																			{item.priceAtOrder === 0
-																				? "Free"
-																				: `${item.priceAtOrder}rs each`}
-																		</p>
+										<>
+											<TableRow
+												key={order.id}
+												className={`hover:bg-muted/50 cursor-pointer ${expandedOrders.includes(order.id) ? "bg-muted/30" : ""}`}
+												onClick={() => toggleOrderExpand(order.id)}
+											>
+												<TableCell className="font-medium">
+													<div className="flex items-center gap-1">
+														{expandedOrders.includes(order.id) ? (
+															<ChevronDown className="h-4 w-4 text-muted-foreground" />
+														) : (
+															<ChevronRight className="h-4 w-4 text-muted-foreground" />
+														)}
+														#{order.id}
+													</div>
+												</TableCell>
+												<TableCell>{order.team.name}</TableCell>
+												<TableCell>
+													<Badge>{order.team.teamId}</Badge>
+												</TableCell>
+												<TableCell className="max-w-32 truncate">
+													{order.event.name}
+												</TableCell>
+												<TableCell>
+													<Dialog>
+														<DialogTrigger asChild>
+															<Button
+																variant="ghost"
+																size="sm"
+																className="gap-2"
+																onClick={(e) => e.stopPropagation()} // Prevent row click
+															>
+																<Eye className="h-3 w-3" />
+																{order.items.length} items
+															</Button>
+														</DialogTrigger>
+														<DialogContent className="max-w-2xl">
+															<DialogHeader>
+																<DialogTitle>
+																	Order Details - #{order.id}
+																</DialogTitle>
+																<DialogDescription>
+																	{order.team.name} •{" "}
+																	{new Date(order.placedAt).toLocaleString()}
+																</DialogDescription>
+															</DialogHeader>
+															<div className="space-y-4">
+																{order.items.map((item) => (
+																	<div
+																		key={item.id}
+																		className="flex justify-between items-center p-3 border rounded"
+																	>
+																		<div>
+																			<h4 className="font-medium">
+																				{item.foodItem.name}
+																			</h4>
+																			<p className="text-sm text-muted-foreground">
+																				Quantity: {item.quantity}
+																			</p>
+																			<p className="text-sm text-muted-foreground">
+																				{item.priceAtOrder === 0
+																					? "Free"
+																					: `${item.priceAtOrder}rs each`}
+																			</p>
+																		</div>
+																		<div className="text-right">
+																			<p className="font-semibold">
+																				{item.priceAtOrder * item.quantity === 0
+																					? "Free"
+																					: `${(item.priceAtOrder * item.quantity).toFixed(2)}rs`}
+																			</p>
+																		</div>
 																	</div>
-																	<div className="text-right">
-																		<p className="font-semibold">
-																			{item.priceAtOrder * item.quantity === 0
+																))}
+																<div className="border-t pt-4">
+																	<div className="flex justify-between items-center">
+																		<span className="font-semibold">
+																			Total Amount:
+																		</span>
+																		<span className="text-xl font-bold">
+																			{order.totalAmount === 0
 																				? "Free"
-																				: `${(item.priceAtOrder * item.quantity).toFixed(2)}rs`}
-																		</p>
+																				: `${order.totalAmount.toFixed(2)}rs`}
+																		</span>
 																	</div>
 																</div>
-															))}
-															<div className="border-t pt-4">
-																<div className="flex justify-between items-center">
-																	<span className="font-semibold">
-																		Total Amount:
-																	</span>
-																	<span className="text-xl font-bold">
-																		{order.totalAmount === 0
-																			? "Free"
-																			: `${order.totalAmount.toFixed(2)}rs`}
-																	</span>
+															</div>
+														</DialogContent>
+													</Dialog>
+												</TableCell>
+												<TableCell className="font-semibold">
+													{order.totalAmount === 0
+														? "Free"
+														: `${order.totalAmount.toFixed(2)}rs`}
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center gap-2">
+														{getStatusIcon(order.orderStatus)}
+														<Badge
+															variant={getStatusVariant(order.orderStatus)}
+														>
+															{order.orderStatus.replace("-", " ")}
+														</Badge>
+													</div>
+												</TableCell>
+												<TableCell onClick={(e) => e.stopPropagation()}>
+													<div className="flex items-center gap-2">
+														{getPaymentStatusBadge(
+															order.paymentStatus,
+															order.totalAmount,
+														)}
+														{order.paymentStatus === "pending" &&
+															order.totalAmount !== 0 && (
+																<Button
+																	size="sm"
+																	variant="outline"
+																	className="gap-1 bg-transparent"
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		handlePaymentUpdate(order.id);
+																	}}
+																	disabled={updatingOrder === order.id}
+																>
+																	{updatingOrder === order.id
+																		? "Updating..."
+																		: "Mark Paid"}
+																</Button>
+															)}
+														{order.paymentStatus === "paid" &&
+															order.orderStatus !== "COMPLETED" && (
+																<Button
+																	size="sm"
+																	variant="outline"
+																	className="gap-1 bg-green-50 border-green-200"
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		handleOrderStatusUpdate(
+																			order.id,
+																			"COMPLETED",
+																		);
+																	}}
+																	disabled={updatingOrder === order.id}
+																>
+																	<CheckCircle className="h-3 w-3" />
+																	{updatingOrder === order.id
+																		? "Updating..."
+																		: "Mark Complete"}
+																</Button>
+															)}
+													</div>
+												</TableCell>
+												<TableCell>
+													{new Date(order.placedAt).toLocaleString()}
+												</TableCell>
+												<TableCell
+													className="text-right"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{" "}
+													{/* Prevent row click */}
+													<Select
+														defaultValue={order.orderStatus}
+														onValueChange={(value) =>
+															handleOrderStatusUpdate(
+																order.id,
+																value as
+																	| "PENDING"
+																	| "CONFIRMED"
+																	| "COMPLETED"
+																	| "CANCELLED",
+															)
+														}
+														disabled={updatingOrder === order.id}
+													>
+														<SelectTrigger className="w-32">
+															<SelectValue />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="PENDING">Pending</SelectItem>
+															<SelectItem value="CONFIRMED">
+																Confirmed
+															</SelectItem>
+															<SelectItem value="COMPLETED">
+																Completed
+															</SelectItem>
+															<SelectItem value="CANCELLED">
+																Cancelled
+															</SelectItem>
+														</SelectContent>
+													</Select>
+												</TableCell>
+											</TableRow>
+
+											{expandedOrders.includes(order.id) && (
+												<TableRow key={`${order.id}-expanded`}>
+													<TableCell colSpan={10} className="p-0 border-t-0">
+														<div className="bg-muted/20 p-4 border-t border-dashed">
+															<h4 className="font-medium text-sm mb-3">
+																Order Items
+															</h4>
+															<div className="space-y-3">
+																{order.items.map((item) => (
+																	<div
+																		key={item.id}
+																		className="flex justify-between items-center p-3 bg-background rounded-md shadow-sm"
+																	>
+																		<div className="flex items-center gap-3">
+																			<div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-full">
+																				<Utensils className="h-5 w-5 text-primary" />
+																			</div>
+																			<div>
+																				<h4 className="font-medium">
+																					{item.foodItem.name}
+																				</h4>
+																				<div className="flex gap-3 text-sm text-muted-foreground">
+																					<span>Quantity: {item.quantity}</span>
+																					<span>
+																						{item.priceAtOrder === 0
+																							? "Free"
+																							: `${item.priceAtOrder}rs each`}
+																					</span>
+																				</div>
+																			</div>
+																		</div>
+																		<div className="text-right">
+																			<p className="font-semibold">
+																				{item.priceAtOrder * item.quantity === 0
+																					? "Free"
+																					: `${(item.priceAtOrder * item.quantity).toFixed(2)}rs`}
+																			</p>
+																		</div>
+																	</div>
+																))}
+
+																<div className="flex justify-end pt-3 border-t">
+																	<div className="bg-background px-4 py-2 rounded-lg">
+																		<div className="flex gap-4 items-center">
+																			<span className="text-muted-foreground">
+																				Total Amount:
+																			</span>
+																			<span className="text-lg font-bold">
+																				{order.totalAmount === 0
+																					? "Free"
+																					: `${order.totalAmount.toFixed(2)}rs`}
+																			</span>
+																		</div>
+																	</div>
 																</div>
 															</div>
 														</div>
-													</DialogContent>
-												</Dialog>
-											</TableCell>
-											<TableCell className="font-semibold">
-												{order.totalAmount === 0
-													? "Free"
-													: `${order.totalAmount.toFixed(2)}rs`}
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-2">
-													{getStatusIcon(order.orderStatus)}
-													<Badge variant={getStatusVariant(order.orderStatus)}>
-														{order.orderStatus.replace("-", " ")}
-													</Badge>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-2">
-													{getPaymentStatusBadge(
-														order.paymentStatus,
-														order.totalAmount,
-													)}
-													{order.paymentStatus === "pending" &&
-														order.totalAmount !== 0 && (
-															<Button
-																size="sm"
-																variant="outline"
-																className="gap-1 bg-transparent"
-																onClick={() => handlePaymentUpdate(order.id)}
-																disabled={updatingOrder === order.id}
-															>
-																{updatingOrder === order.id
-																	? "Updating..."
-																	: "Mark Paid"}
-															</Button>
-														)}
-													{order.paymentStatus === "paid" &&
-														order.orderStatus !== "COMPLETED" && (
-															<Button
-																size="sm"
-																variant="outline"
-																className="gap-1 bg-green-50 border-green-200"
-																onClick={() =>
-																	handleOrderStatusUpdate(order.id, "COMPLETED")
-																}
-																disabled={updatingOrder === order.id}
-															>
-																<CheckCircle className="h-3 w-3" />
-																{updatingOrder === order.id
-																	? "Updating..."
-																	: "Mark Complete"}
-															</Button>
-														)}
-												</div>
-											</TableCell>
-											<TableCell>
-												{new Date(order.placedAt).toLocaleString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<Select
-													defaultValue={order.orderStatus}
-													onValueChange={(value) =>
-														handleOrderStatusUpdate(
-															order.id,
-															value as
-																| "PENDING"
-																| "CONFIRMED"
-																| "COMPLETED"
-																| "CANCELLED",
-														)
-													}
-													disabled={updatingOrder === order.id}
-												>
-													<SelectTrigger className="w-32">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="PENDING">Pending</SelectItem>
-														<SelectItem value="CONFIRMED">Confirmed</SelectItem>
-														<SelectItem value="COMPLETED">Completed</SelectItem>
-														<SelectItem value="CANCELLED">Cancelled</SelectItem>
-													</SelectContent>
-												</Select>
-											</TableCell>
-										</TableRow>
+													</TableCell>
+												</TableRow>
+											)}
+										</>
 									))}
 								</TableBody>
 							</Table>

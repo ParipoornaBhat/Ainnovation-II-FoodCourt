@@ -25,12 +25,10 @@ export default function EditFoodItemPage() {
 	const { mutate: updateFood } = api.food.updateFoodItem.useMutation();
 
 	const handleSubmit = (data: AddFoodItemPageProps) => {
-		console.log(data);
 		if (data.imageUrl?.trim() === "") {
 			data.imageUrl = undefined;
 		}
 
-		console.log(data.imageUrl);
 		updateFood(
 			{
 				id: foodId,
