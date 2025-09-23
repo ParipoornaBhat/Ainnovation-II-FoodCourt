@@ -25,7 +25,7 @@ export function Navigation() {
 					<div className="hidden md:flex flex-1 items-center justify-center space-x-10">
 						<Link
 							href="/"
-							className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
+							className="ml-32 text-foreground hover:text-primary transition-colors duration-200 font-medium"
 						>
 							Home
 						</Link>
@@ -44,7 +44,7 @@ export function Navigation() {
 					</div>
 
 					{/* Right Section - All controls aligned right */}
-					<div className="flex items-center justify-end min-w-[220px] space-x-4">
+					<div className="flex items-center justify-end min-w-[280px] space-x-2">
 						{/* ...existing code for right controls... */}
 						<div className="hidden md:flex items-center">
 							{/* ...existing code for right logo... */}
@@ -66,25 +66,29 @@ export function Navigation() {
 							<Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
 							<span className="sr-only">Toggle theme</span>
 						</Button>
-						{session ? (
-							<Button
-								variant="ghost"
-								onClick={async () => {
-									await signOut({ redirect: false });
-									document.cookie = [
-										"flash_success=You are signed out successfully.",
-										"max-age=5",
-										"path=/",
-									].join("; ");
-									window.location.href = "/";
-								}}
-								className={cn(
-									"w-full justify-start gap-3 h-10 text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 hidden md:flex ",
-								)}
-							>
-								<LogOut className="h-4 w-4 flex-shrink-0" />
-							</Button>
-						) : null}
+						{/* Always reserve space for logout button */}
+						<div className="hidden md:block w-10">
+							{session ? (
+								<Button
+									variant="ghost"
+									size="icon"
+									onClick={async () => {
+										await signOut({ redirect: false });
+										document.cookie = [
+											"flash_success=You are signed out successfully.",
+											"max-age=5",
+											"path=/",
+										].join("; ");
+										window.location.href = "/";
+									}}
+									className="h-9 w-9 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+								>
+									<LogOut className="h-4 w-4 flex-shrink-0" />
+								</Button>
+							) : (
+								<div className="h-9 w-9"></div>
+							)}
+						</div>
 						<Button
 							variant="ghost"
 							size="icon"
@@ -126,13 +130,13 @@ export function Navigation() {
 						>
 							Team Portal
 						</Link>
-						<Link
+						{/* <Link
 							href="/admin"
 							className="block px-4 py-2 text-foreground hover:text-primary hover:bg-accent/50 rounded-md transition-all duration-200"
 							onClick={() => setIsMobileMenuOpen(false)}
 						>
 							Admin Dashboard
-						</Link>
+						</Link> */}
 
 						<Link
 							href="/quicklink"
