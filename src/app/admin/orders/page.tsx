@@ -39,7 +39,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { api } from "@/trpc/react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -390,9 +390,8 @@ export default function OrderManagement() {
 								</TableHeader>
 								<TableBody>
 									{allOrders.map((order) => (
-										<>
+										<React.Fragment key={order.id}>
 											<TableRow
-												key={order.id}
 												className={`hover:bg-muted/50 cursor-pointer ${expandedOrders.includes(order.id) ? "bg-muted/30" : ""}`}
 												onClick={() => toggleOrderExpand(order.id)}
 											>
@@ -643,7 +642,7 @@ export default function OrderManagement() {
 													</TableCell>
 												</TableRow>
 											)}
-										</>
+										</React.Fragment>
 									))}
 								</TableBody>
 							</Table>

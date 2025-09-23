@@ -21,7 +21,7 @@ export function TeamLoginButton() {
 
 	return (
 		<Button onClick={handleClick} size="lg" className="text-lg px-8 py-6">
-			Team Login <ArrowRight className="ml-2 h-5 w-5" />
+			Login <ArrowRight className="ml-2 h-5 w-5" />
 		</Button>
 	);
 }
