@@ -44,7 +44,7 @@ export function Navigation() {
 					</div>
 
 					{/* Right Section - All controls aligned right */}
-					<div className="flex items-center justify-end min-w-[280px] space-x-2">
+					<div className="flex items-center justify-end w-full space-x-2">
 						{/* ...existing code for right controls... */}
 						<div className="hidden md:flex items-center">
 							{/* ...existing code for right logo... */}
